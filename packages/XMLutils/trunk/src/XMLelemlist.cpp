@@ -33,8 +33,8 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	Handle pathName = NULL;
 	
 	memset(indices, 0, sizeof(indices));
-					
-    for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+		
+    for (cur_node = a_node; cur_node ; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
 			path = xmlGetNodePath(cur_node);
 		
@@ -90,10 +90,9 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				pathName = NULL;
 			}
 			}
+			if((cur_node->children != NULL) && (err = fill_element_names(cur_node->children, textWav)))
+				goto done;
 		}
-	
-		if(err = fill_element_names(cur_node->children, textWav))
-			goto done;
 		if(path != NULL)
 			xmlFree(path);
 		if(pathName != NULL)
