@@ -33,14 +33,14 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	Handle pathName = NULL;
 	
 	memset(indices, 0, sizeof(indices));
-	
-	if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
-		return err;
 					
     for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
 			path = xmlGetNodePath(cur_node);
-					
+		
+			if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
+				return err;
+		
 			dimensionSizes[0] = dimensionSizes[0]+1; 
 			dimensionSizes[1] = 3;     
 			dimensionSizes[2] = 0;    
@@ -64,7 +64,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				DisposeHandle(pathName);
 				pathName = NULL;
 			}
-			
+			if(cur_node->ns != NULL && cur_node->ns->href != NULL){
 			size = strlen((char*)cur_node->ns->href);
 			if(err = PtrToHand(cur_node->ns->href, &pathName, size))
 				goto done;
@@ -76,7 +76,8 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				DisposeHandle(pathName);
 				pathName = NULL;
 			}
-			if(cur_node->ns->prefix != NULL){
+			}
+			if(cur_node->ns != NULL && cur_node->ns->prefix != NULL){
 			size = strlen((char*)cur_node->ns->prefix);
 			if(err = PtrToHand(cur_node->ns->prefix, &pathName, size))
 				goto done;
