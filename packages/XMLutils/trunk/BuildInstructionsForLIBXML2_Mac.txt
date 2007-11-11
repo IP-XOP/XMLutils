@@ -1,0 +1,32 @@
+Build instructions for making the libxml2 Universal binary on the Mac.  This library is needed for XMLutils.
+
+1) First download the latest libxml source from the xmlsoft website - ftp://xmlsoft.org/libxml2/
+
+2) Unzip into a folder.
+
+3) Open up a terminal window.  Navigate to that folder in the terminal.
+
+4) Inside that folder type:
+
+env CFLAGS="-arch i386 -arch ppc" LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk" ./configure --disable-dependency-tracking --enable-static=no --without-python
+
+This will configure libxml2 to be built as a universal binary.  Although I'm not sure, I think if you want a static library you have to put --enable-static=yes.  You should've already installed the developer tools that came with your Mac (Xcode).
+
+5) Now type:
+
+make
+
+This should compile libxml2 using gcc.  It will take a small while.
+
+6) By default the library and header files will install to /usr/local/lib and /usr/local/include/libxml by default.  To install them type:
+
+sudo make install
+
+You will have to have your admin password handy.
+
+7) To use the library in your project you can either use the dynamic library libxml2.dylib or the static libxml2.a library. Please refer to the XOP toolkit documentation for more details on how to use this.
+
+Any questions, please email and ask me.
+
+cheers,
+Andy
