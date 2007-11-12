@@ -18,17 +18,16 @@
  * of that element.
  *
  */
-static void
+static int
 update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
-    int size;
+    int err = 0;
+	int size;
     int i;
-	xmlNodePtr nextTextNode = NULL;
-	int changed = 0;
-	
+		
     size = (nodes) ? nodes->nodeNr : 0;
    
 	if(strlen((char*)value)==0)
-		value = (xmlChar*)("\n");
+		value = (xmlChar*)("\r");
     /*
      * NOTE: the nodes are processed in reverse order, i.e. reverse document
      *       order because xmlNodeSetContent can actually free up descendant
@@ -38,21 +37,7 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
      *       done carefully !
      */
     for(i = size - 1; i >= 0; i--) {
-	
-	//nodes->nodeTab[i] = xmlNewTextChild(nodes->nodeTab[i],NULL,nodes->nodeTab[i]->name ,value);
-
-		nextTextNode = nodes->nodeTab[i]->children;
-		
-		while(nextTextNode != NULL){
-			if(nextTextNode->type == XML_TEXT_NODE && changed == 0){
-				xmlNodeSetContent(nextTextNode, value);
-				changed = 1;
-			} else if(nextTextNode->type == XML_TEXT_NODE && changed == 1) {
-				xmlNodeSetContent(nextTextNode,(xmlChar*)("\n"));
-			}
-			nextTextNode = nextTextNode->next;
-		}
-
+				xmlNodeSetContent(nodes->nodeTab[i], value);
 	/*
 	 * All the elements returned by an XPath query are pointers to
 	 * elements from the tree *except* namespace nodes where the XPath
@@ -73,6 +58,8 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
 	if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)
 	    nodes->nodeTab[i] = NULL;
     }
+	done:
+	return err;
 }
 
 int
@@ -151,7 +138,8 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	if(err)
 		goto done;
 	
-	update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content);
+	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content))
+		goto done;
 	
 	if(xmlSaveFile(fileName,doc) == -1){
 		err = XML_COULDNT_SAVE;

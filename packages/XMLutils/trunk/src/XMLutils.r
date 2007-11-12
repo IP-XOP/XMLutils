@@ -30,6 +30,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Your Xpath expression did not compile.",
 	//[8]
 	"Couldn't save the modified XML for some reason.",
+	//[9]
+	"Error while changing DOM.",
 	}
 };
 

@@ -97,7 +97,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 			goto done;
 			
 		/* Get the string from the node */
-		xmloutputBuf = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[j]->xmlChildrenNode, 1);
+		xmloutputBuf = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[j], 0);
 
 		outputBuf = strdup((char*)xmloutputBuf);
 		if(outputBuf == NULL){
