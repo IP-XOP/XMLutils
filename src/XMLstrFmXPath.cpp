@@ -27,8 +27,7 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 	}
 	
 	for(i = 0; i < size; ++i) {
-		assert(nodes->nodeTab[i]);
-		xmloutputBuf = xmlNodeListGetString(doc, nodes->nodeTab[i]->xmlChildrenNode, 1);
+		xmloutputBuf = xmlNodeListGetString(doc, nodes->nodeTab[i], 1);
 
 		bufsize = strlen((char*)xmloutputBuf);
 		
