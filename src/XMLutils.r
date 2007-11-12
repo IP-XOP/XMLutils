@@ -28,6 +28,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"One of the input strings is NULL.",
 	//[7]
 	"Your Xpath expression did not compile.",
+	//[8]
+	"Couldn't save the modified XML for some reason.",
 	}
 };
 
@@ -72,6 +74,15 @@ resource 'XOPF' (1100) {
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//options
+		},
+		"XMLsetNodeStr",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		HSTRING_TYPE,					//filename
+		HSTRING_TYPE,					//xpath
+		HSTRING_TYPE,					//namespaces
+		HSTRING_TYPE,					//content
 		},			
 	}
 };
