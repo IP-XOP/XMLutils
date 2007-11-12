@@ -28,6 +28,9 @@ RegisterFunction()
 		case 2:
 			return((long)XMLWaveFmXPath);
 			break;
+		case 3:
+			return((long)XMLsetNodeStr);
+			break;
 	}
 	return NIL;
 }

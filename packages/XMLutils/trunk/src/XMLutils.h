@@ -15,7 +15,9 @@
 #include <string.h>
 #include <libxml/xPath.h>
 #include <libxml/xpathInternals.h>
-  
+
+#define LIBXML_STATIC
+
 /*
 in XMLelementlist.cpp
 */
@@ -56,3 +58,15 @@ typedef struct XMLWaveXPathStruct {
 }XMLWaveXPathStruct, *XMLWaveXPathStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLWaveFmXPath(XMLWaveXPathStructPtr p);
+
+/* in XMLsetNodeStr */
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLsetNodeStrStruct {
+	Handle content;					//an options string
+	Handle ns;						//a namespace to register
+	Handle xPath;					//the xpath
+	Handle fileNameStr;				//the filename to load
+	DOUBLE retval;					//retval
+}XMLsetNodeStrStruct, *XMLsetNodeStrStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
