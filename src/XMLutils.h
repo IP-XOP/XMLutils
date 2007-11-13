@@ -14,6 +14,7 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include <libxml/xPath.h>
+#include <libxml/xmlstring.h>
 #include <libxml/xpathInternals.h>
 
 #define LIBXML_STATIC
@@ -70,3 +71,27 @@ typedef struct XMLsetNodeStrStruct {
 }XMLsetNodeStrStruct, *XMLsetNodeStrStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
+
+/* in XMLlistAttr */
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLlistAttrStruct {
+	Handle ns;						//a namespace to register
+	Handle xPath;					//the xpath
+	Handle fileNameStr;				//the filename to load
+	DOUBLE returnval;					//retval
+}XMLlistAttrStruct, *XMLlistAttrStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLlistAttr(XMLlistAttrStructPtr p);
+
+/* in XMLsetNodeStr */
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLsetAttrStruct {
+	Handle val;
+	Handle attribute;
+	Handle ns;						//a namespace to register
+	Handle xPath;					//the xpath
+	Handle fileNameStr;				//the filename to load
+	DOUBLE returnval;					//retval
+}XMLsetAttrStruct, *XMLsetAttrStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLsetAttr(XMLsetAttrStructPtr p);
