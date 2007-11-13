@@ -85,6 +85,24 @@ resource 'XOPF' (1100) {
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//content
+		},	
+		"XMLlistAttr",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		HSTRING_TYPE,					//filename
+		HSTRING_TYPE,					//xpath
+		HSTRING_TYPE,					//namespaces
+		},
+		"XMLsetAttr",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		HSTRING_TYPE,					//filename
+		HSTRING_TYPE,					//xpath
+		HSTRING_TYPE,					//namespaces
+		HSTRING_TYPE,					//atttribute to change
+		HSTRING_TYPE,					//value of the attribute
 		},			
 	}
 };

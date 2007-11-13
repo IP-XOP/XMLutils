@@ -31,6 +31,12 @@ RegisterFunction()
 		case 3:
 			return((long)XMLsetNodeStr);
 			break;
+		case 4:
+			return((long)XMLlistAttr);
+			break;
+		case 5:
+			return((long)XMLsetAttr);
+			break;
 	}
 	return NIL;
 }
