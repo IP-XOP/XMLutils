@@ -110,19 +110,12 @@ XMLelemlist(XMLelemlistStructPtr p){
 	//the error code
 	int err = 0;
 	
-	//the filename string
-	char *fileName = NULL;
-	char nativePath[MAX_PATH_LEN+1];
-	
-	//the xmldoc object
 	xmlDoc *doc = NULL;
-	
+	extern std::map<int,igorXMLfile> allXMLfiles;
+	int fileID = -1;	
 	//xmldoc root element
     xmlNode *root_element = NULL;
-	
-	//size of filenamehandle
-	int size;
-	
+
 	//textwave to put element list in
 	waveHndl textWav = NULL;
 	char *textWavName = "W_ElementList";
@@ -130,27 +123,15 @@ XMLelemlist(XMLelemlistStructPtr p){
 	long dimensionSizes[MAX_DIMENSIONS+1];	//used for MDMakeWave
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
-	
-	size = GetHandleSize(p->fileNameStr);
-	
-	//first step is to get the filename from the filename handle
-	fileName = (char*)malloc(size*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;
+
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
 	}
-	
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, size))
-		goto done;
-	if (err = GetNativePath(fileName,nativePath))
-		goto done;
-	
-	/*parse the file and get the DOM */
-    doc = xmlReadFile( fileName, NULL, 0);
-	if(doc == NULL){
-		err = XMLDOC_PARSE_ERROR;
-		goto done;
-	}
+
 	/*Get the root element node */
 	root_element = xmlDocGetRootElement(doc);
    
@@ -162,16 +143,6 @@ XMLelemlist(XMLelemlistStructPtr p){
 		goto done;
 	
 done:
-	if(fileName != NULL)
-		free(fileName);
-	
-	/* free the document */
-	xmlFreeDoc(doc);
-	/*
-	 *Free the global variables that may
-	 *have been allocated by the parser.
-	 */
-	xmlCleanupParser();
-	
+	p->retval = err;
 	return err;	
 }

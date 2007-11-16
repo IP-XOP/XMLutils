@@ -67,37 +67,30 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	//the error code
 	int err = 0;
 	
+	extern std::map<int,igorXMLfile> allXMLfiles;
+	int fileID = -1;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
-	//the filename handle, Xpath handle,namespace handle,options handle
-	char *fileName = NULL;
+	//Xpath handle,namespace handle,options handle
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *content = NULL;
 	//size of handles
-	int sizefileName,sizexPath,sizens,sizecontent;
-	
-	//filename will be passed as a native path
-	char nativePath[MAX_PATH_LEN+1];	
+	int sizexPath,sizens,sizecontent;
 	
 	/* check if any of the argument string handles are null */
-	if(p->fileNameStr == NULL || p->xPath == NULL || p->ns == NULL || p->content == NULL){
+	if(p->xPath == NULL || p->ns == NULL || p->content == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
 	/* work out the size of each of the argument string handles */
-	sizefileName = GetHandleSize(p->fileNameStr);
 	sizexPath = GetHandleSize(p->xPath);
 	sizens = GetHandleSize(p->ns);
 	sizecontent = GetHandleSize(p->content);
 	
 	//allocate space for the C-strings.
-	fileName = (char*)malloc(sizefileName*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;goto done;
-	}
 	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
 	if(xPath == NULL){
 		err = NOMEM;goto done;
@@ -112,8 +105,6 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	}
 
 	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, sizefileName))
-		goto done;
 	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
 		goto done;
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
@@ -121,17 +112,14 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	if (err = GetCStringFromHandle(p->content, content, sizecontent))
 		goto done;
 
-	//get native filesystem filepath
-	if (err = GetNativePath(fileName,nativePath))
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
-
-	/* Load XML document */
-    doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
-		goto done;
-    }
- 
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
+	}
+	
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
 	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath, (xmlChar*) ns, &err); 
@@ -140,20 +128,11 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	
 	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content))
 		goto done;
-	
-	if(xmlSaveFile(fileName,doc) == -1){
-		err = XML_COULDNT_SAVE;
-		goto done;
-	}
-		
+			
 done:
 	p->retval = err;
-	if(doc != NULL)
-		xmlFreeDoc(doc); 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(fileName != NULL)
-		free(fileName);
 	if(xPath != NULL)
 		free(xPath);
 	if(ns != NULL)
@@ -163,9 +142,6 @@ done:
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->content);
 	DisposeHandle(p->ns);
-	DisposeHandle(p->fileNameStr);
-	/* Shutdown libxml */
-	xmlCleanupParser();
 	
 	return err;	
 }

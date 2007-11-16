@@ -95,14 +95,27 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		/* get the current dimensions of the wave */
 		if(err = MDGetWaveDimensions(outputWav,&numDimensions,olddimensionSizes))
 			goto done;
-			
-		/* Get the string from the node */
-		xmloutputBuf = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[j], 0);
+		
+		switch(xpathObj->nodesetval->nodeTab[j]->type){
+			case(XML_ATTRIBUTE_NODE):
+				xmloutputBuf =xmlNodeGetContent(xpathObj->nodesetval->nodeTab[j]->children);
+				break;
+			case(XML_TEXT_NODE):
+				xmloutputBuf = xmlNodeGetContent(xpathObj->nodesetval->nodeTab[j]);
+				break;
+			default:
+				xmloutputBuf = xmlNodeGetContent(xpathObj->nodesetval->nodeTab[j]);
+				break;
+		}
 
+		
+		/* Get the string from the node */
+		//xmloutputBuf = xmlNodeListGetString(doc, xpathObj->nodesetval->nodeTab[j], 0);
 		outputBuf = strdup((char*)xmloutputBuf);
 		if(outputBuf == NULL){
 			err = NOMEM; goto done;
 		}
+
 			
 		/* tokenize the output */
 		ii=0;
@@ -165,37 +178,30 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	//the error code
 	int err = 0;
 	
+	extern std::map<int,igorXMLfile> allXMLfiles;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
-	//the filename handle, Xpath handle,namespace handle,options handle
-	char *fileName = NULL;
+	//the fileID, Xpath handle,namespace handle,options handle
+	int fileID = -1;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *options = NULL;
 	//size of handles
-	int sizefileName,sizexPath,sizens,sizeoptions;
-	
-	//filename will be passed as a native path
-	char nativePath[MAX_PATH_LEN+1];	
+	int sizexPath,sizens,sizeoptions;
 	
 	/* check if any of the argument string handles are null */
-	if(p->fileNameStr == NULL || p->xPath == NULL || p->ns == NULL || p->options == NULL){
+	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
 	/* work out the size of each of the argument string handles */
-	sizefileName = GetHandleSize(p->fileNameStr);
 	sizexPath = GetHandleSize(p->xPath);
 	sizens = GetHandleSize(p->ns);
 	sizeoptions = GetHandleSize(p->options);
 	
 	//allocate space for the C-strings.
-	fileName = (char*)malloc(sizefileName*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;goto done;
-	}
 	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
 	if(xPath == NULL){
 		err = NOMEM;goto done;
@@ -210,8 +216,6 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	}
 
 	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, sizefileName))
-		goto done;
 	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
 		goto done;
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
@@ -219,16 +223,13 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	if (err = GetCStringFromHandle(p->options, options, sizeoptions))
 		goto done;
 
-	//get native filesystem filepath
-	if (err = GetNativePath(fileName,nativePath))
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
-
-	/* Load XML document */
-    doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
-		goto done;
-    }
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
+	}
  
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
@@ -241,12 +242,8 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 		
 done:
 	p->retval = err;
-	if(doc != NULL)
-		xmlFreeDoc(doc); 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(fileName != NULL)
-		free(fileName);
 	if(xPath != NULL)
 		free(xPath);
 	if(ns != NULL)
@@ -256,9 +253,6 @@ done:
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->options);
 	DisposeHandle(p->ns);
-	DisposeHandle(p->fileNameStr);
-	/* Shutdown libxml */
-	xmlCleanupParser();
 	
 	return err;	
 }

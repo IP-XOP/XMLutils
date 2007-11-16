@@ -11,6 +11,7 @@
 #include "XMLutils.h"
 
 
+
 int 
 print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
     int err = 0;
@@ -27,16 +28,31 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 	}
 	
 	for(i = 0; i < size; ++i) {
-		xmloutputBuf = xmlNodeListGetString(doc, nodes->nodeTab[i], 1);
+		switch(nodes->nodeTab[i]->type){
+			case(XML_ATTRIBUTE_NODE):
+				xmloutputBuf =xmlNodeGetContent(nodes->nodeTab[i]->children);
+				break;
+			case(XML_TEXT_NODE):
+				xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);
+				break;
+			default:
+				xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);//(doc, nodes->nodeTab[i], 1);
+				break;
+		}
 
-		bufsize = strlen((char*)xmloutputBuf);
+
+		if(xmloutputBuf != NULL){
+			bufsize = strlen((char*)xmloutputBuf);
+			
+			if(err = PtrAndHand(xmloutputBuf,output,bufsize))
+				goto done;
+			bufsize = strlen(space);			
+			if(err = PtrAndHand(space,output,bufsize))
+				goto done;	
 		
-		if(err = PtrAndHand(xmloutputBuf,output,bufsize))
-			goto done;
-		bufsize = strlen(space);			
-		if(err = PtrAndHand(space,output,bufsize))
-			goto done;	
-    }
+		}
+		
+	}
 	
 	
 done:
@@ -53,35 +69,28 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	//the output Handle
 	Handle output = NULL;
 	
+	extern std::map<int,igorXMLfile> allXMLfiles;
+	int fileID = -1;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
 	
 	//the filename handle, Xpath handle,namespace handle,options handle
-	char *fileName = NULL;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *options = NULL;
 	//size of handles
-	int sizefileName,sizexPath,sizens,sizeoptions;
-	
-	//filename will be passed as a native path
-	char nativePath[MAX_PATH_LEN+1];	
-			
-	if(p->fileNameStr == NULL || p->xPath == NULL || p->ns == NULL || p->options == NULL){
+	int sizexPath,sizens,sizeoptions;
+				
+	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	sizefileName = GetHandleSize(p->fileNameStr);
 	sizexPath = GetHandleSize(p->xPath);
 	sizens = GetHandleSize(p->ns);
 	sizeoptions = GetHandleSize(p->options);
 	
 	//allocate space for the C-strings.
-	fileName = (char*)malloc(sizefileName*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;goto done;
-	}
 	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
 	if(xPath == NULL){
 		err = NOMEM;goto done;
@@ -96,17 +105,11 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	}
 	
 	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, sizefileName))
-		goto done;
 	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
 		goto done;
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
 		goto done;
 	if (err = GetCStringFromHandle(p->options, options, sizeoptions))
-		goto done;
-
-	//get native filesystem filepath
-	if (err = GetNativePath(fileName,nativePath))
 		goto done;
 		
 	//get a handle for the output
@@ -114,12 +117,13 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	if (output == NULL) 
 		return NOMEM; 
     
-	/* Load XML document */
-    doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
-    }
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
+	}
 	
 	//execute Xpath expression
 	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
@@ -130,12 +134,8 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	
 	p->returnString = output;
 done:
-	if(doc != NULL)
-		xmlFreeDoc(doc); 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(fileName != NULL)
-		free(fileName);
 	if(xPath != NULL)
 		free(xPath);
 	if(ns != NULL)
@@ -145,10 +145,6 @@ done:
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->options);
 	DisposeHandle(p->ns);
-	DisposeHandle(p->fileNameStr);
 		
-	/* Shutdown libxml */
-	xmlCleanupParser();
-	
 	return err;	
 }
