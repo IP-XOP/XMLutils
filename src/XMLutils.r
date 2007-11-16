@@ -32,6 +32,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Couldn't save the modified XML for some reason.",
 	//[9]
 	"Error while changing DOM.",
+	//[10]
+	"No XML file exists for that fileID.",
 	}
 };
 
@@ -57,13 +59,13 @@ resource 'XOPF' (1100) {
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
-		HSTRING_TYPE,	
+		NT_FP64,						// fileID
 		},
 		"XMLstrFmXPath",					// Function name.
 		F_EXP | F_EXTERNAL,				// Function category,
 		HSTRING_TYPE,						// Return value type.
 		{									
-		HSTRING_TYPE,					//filename
+		NT_FP64,						//fileID
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//options
@@ -72,7 +74,7 @@ resource 'XOPF' (1100) {
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
-		HSTRING_TYPE,					//filename
+		NT_FP64,						//fileID
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//options
@@ -81,7 +83,7 @@ resource 'XOPF' (1100) {
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
-		HSTRING_TYPE,					//filename
+		NT_FP64,						//fileID
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//content
@@ -90,7 +92,7 @@ resource 'XOPF' (1100) {
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
-		HSTRING_TYPE,					//filename
+		NT_FP64,						//fileID
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		},
@@ -98,11 +100,30 @@ resource 'XOPF' (1100) {
 		F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
-		HSTRING_TYPE,					//filename
+		NT_FP64,						//fileID
 		HSTRING_TYPE,					//xpath
 		HSTRING_TYPE,					//namespaces
 		HSTRING_TYPE,					//atttribute to change
 		HSTRING_TYPE,					//value of the attribute
-		},			
+		},
+		"XMLopenFile",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		HSTRING_TYPE,					//filename
+		},
+		"XMLcloseFile",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		NT_FP64,						//fileID
+		NT_FP64,						//0=nosave,1=save
+		},
+		"XMLSAVEFILE",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		NT_FP64,						//fileID
+		},
 	}
 };

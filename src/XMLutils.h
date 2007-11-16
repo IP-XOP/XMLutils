@@ -16,15 +16,24 @@
 #include <libxml/xPath.h>
 #include <libxml/xmlstring.h>
 #include <libxml/xpathInternals.h>
-
 #define LIBXML_STATIC
+#include <map>
+
+/* A structure to hold all the file IO information */
+typedef struct igorXMLfile {
+	XOP_FILE_REF fileRef;
+	char fileNameStr[MAX_PATH_LEN + 1];
+	xmlDoc* doc;
+}igorXMLfile, *igorXMLfilePtr;
+
 
 /*
 in XMLelementlist.cpp
 */
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLelemlistStruct {
-	Handle fileNameStr;
+	DOUBLE fileID;
+	DOUBLE retval;
 }XMLelemlistStruct, *XMLelemlistStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLelemlist(XMLelemlistStructPtr p);
@@ -40,7 +49,7 @@ typedef struct XMLstrFmXpathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	Handle fileNameStr;				//the filename to load
+	DOUBLE fileID;					//the fileID to load
 	Handle returnString;			//the string containing the content
 }XMLstrFmXpathStruct, *XMLstrFmXpathStructPtr;
 #include "XOPStructureAlignmentReset.h"
@@ -49,16 +58,17 @@ int XMLstrFmXPath(XMLstrFmXpathStructPtr p);
 /*
 in XMLparsedWaveFromXPath.cpp
 */ 
+
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLWaveXPathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	Handle fileNameStr;				//the filename to load
+	DOUBLE fileID;				//the filename to load
 	DOUBLE retval;					//retval
 }XMLWaveXPathStruct, *XMLWaveXPathStructPtr;
 #include "XOPStructureAlignmentReset.h"
-int XMLWaveFmXPath(XMLWaveXPathStructPtr p);
+int XMLWaveFmXPath(XMLWaveXPathStructPtr);
 
 /* in XMLsetNodeStr */
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
@@ -66,7 +76,7 @@ typedef struct XMLsetNodeStrStruct {
 	Handle content;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	Handle fileNameStr;				//the filename to load
+	DOUBLE fileID;					//fileID
 	DOUBLE retval;					//retval
 }XMLsetNodeStrStruct, *XMLsetNodeStrStructPtr;
 #include "XOPStructureAlignmentReset.h"
@@ -77,21 +87,49 @@ int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
 typedef struct XMLlistAttrStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	Handle fileNameStr;				//the filename to load
+	DOUBLE fileID;					//fileID
 	DOUBLE returnval;					//retval
 }XMLlistAttrStruct, *XMLlistAttrStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLlistAttr(XMLlistAttrStructPtr p);
 
-/* in XMLsetNodeStr */
+/* in XMLsetAttr */
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLsetAttrStruct {
 	Handle val;
 	Handle attribute;
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	Handle fileNameStr;				//the filename to load
+	DOUBLE fileID;					//fileID
 	DOUBLE returnval;					//retval
 }XMLsetAttrStruct, *XMLsetAttrStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLsetAttr(XMLsetAttrStructPtr p);
+
+/* in XMLfileIO.cpp */
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLopenFileStruct {
+	Handle fullFilePath;
+	DOUBLE retval;
+}XMLopenFileStruct, *XMLopenFileStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLopenFile(XMLopenFileStruct *p);
+
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLcloseFileStruct {
+	DOUBLE toSave;
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLcloseFileStruct, *XMLcloseFileStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLcloseFile(XMLcloseFileStruct *p);
+
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLfileSaveStruct {
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLfileSaveStruct, *XMLfileSaveStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLSAVEFILE(XMLfileSaveStruct *p);
+
+

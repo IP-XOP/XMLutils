@@ -98,33 +98,26 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	//the error code
 	int err = 0;
 	
+	extern std::map<int,igorXMLfile> allXMLfiles;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
+	int fileID = -1;
 	
 	//the filename handle, Xpath handle,namespace handle,options handle
-	char *fileName = NULL;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	//size of handles
-	int sizefileName,sizexPath,sizens;
-	
-	//filename will be passed as a native path
-	char nativePath[MAX_PATH_LEN+1];	
+	int sizexPath,sizens;
 			
-	if(p->fileNameStr == NULL || p->xPath == NULL || p->ns == NULL){
+	if(p->xPath == NULL || p->ns == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	sizefileName = GetHandleSize(p->fileNameStr);
 	sizexPath = GetHandleSize(p->xPath);
 	sizens = GetHandleSize(p->ns);
 	
 	//allocate space for the C-strings.
-	fileName = (char*)malloc(sizefileName*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;goto done;
-	}
 	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
 	if(xPath == NULL){
 		err = NOMEM;goto done;
@@ -135,23 +128,18 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	}
 	
 	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, sizefileName))
-		goto done;
 	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
 		goto done;
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
 		goto done;
-
-	//get native filesystem filepath
-	if (err = GetNativePath(fileName,nativePath))
+	
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
-    
-	/* Load XML document */
-    doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
-		goto done;
-    }
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
+	}
 	
 	//execute Xpath expression
 	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
@@ -161,23 +149,15 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	print_attr(doc, xpathObj->nodesetval);
 	
 	p->returnval = err;
-done:
-	if(doc != NULL)
-		xmlFreeDoc(doc); 
+done: 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(fileName != NULL)
-		free(fileName);
 	if(xPath != NULL)
 		free(xPath);
 	if(ns != NULL)
 		free(ns);
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->ns);
-	DisposeHandle(p->fileNameStr);
-		
-	/* Shutdown libxml */
-	xmlCleanupParser();
 	
 	return err;	
 }

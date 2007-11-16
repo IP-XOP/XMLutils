@@ -49,37 +49,31 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	//the error code
 	int err = 0;
 	
+	extern std::map<int,igorXMLfile> allXMLfiles;
+	int fileID = -1;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
 	
-	//the filename handle, Xpath handle,namespace handle,options handle
-	char *fileName = NULL;
+	//Xpath handle,namespace handle,options handle
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *attribute = NULL;
 	char *value = NULL;
 	//size of handles
-	int sizefileName,sizexPath,sizens,sizeattribute,sizevalue;
+	int sizexPath,sizens,sizeattribute,sizevalue;
 
-	//filename will be passed as a native path
-	char nativePath[MAX_PATH_LEN+1];	
 			
-	if(p->fileNameStr == NULL || p->xPath == NULL || p->ns == NULL || p->attribute == NULL || p->val == NULL){
+	if(p->xPath == NULL || p->ns == NULL || p->attribute == NULL || p->val == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	sizefileName = GetHandleSize(p->fileNameStr);
 	sizexPath = GetHandleSize(p->xPath);
 	sizens = GetHandleSize(p->ns);
 	sizeattribute = GetHandleSize(p->attribute);
 	sizevalue = GetHandleSize(p->val);
 	
 	//allocate space for the C-strings.
-	fileName = (char*)malloc(sizefileName*sizeof(char)+1);
-	if(fileName == NULL){
-		err = NOMEM;goto done;
-	}
 	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
 	if(xPath == NULL){
 		err = NOMEM;goto done;
@@ -98,8 +92,6 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	}	
 	
 	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->fileNameStr, fileName, sizefileName))
-		goto done;
 	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
 		goto done;
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
@@ -108,38 +100,26 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		goto done;
 	if (err = GetCStringFromHandle(p->val, value, sizevalue))
 		goto done;
-		
-	//get native filesystem filepath
-	if (err = GetNativePath(fileName,nativePath))
+	
+	fileID = (int)roundf(p->fileID);	
+	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		err = FILEID_DOESNT_EXIST;
 		goto done;
-		    
-	/* Load XML document */
-    doc = xmlParseFile(fileName);
-    if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
-		goto done;
-    }
+	} else {
+		doc = allXMLfiles[p->fileID].doc;
+	}
 	
 	//execute Xpath expression
 	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
 	if(err)
 		goto done;
-	//and print it out to a handle
+		
 	set_attr(doc, xpathObj->nodesetval,attribute,value);
-	
-	if(xmlSaveFile(fileName,doc) == -1){
-		err = XML_COULDNT_SAVE;
-		goto done;
-	}
 	
 	p->returnval = err;
 done:
-	if(doc != NULL)
-		xmlFreeDoc(doc); 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(fileName != NULL)
-		free(fileName);
 	if(xPath != NULL)
 		free(xPath);
 	if(ns != NULL)
@@ -148,16 +128,11 @@ done:
 		DisposeHandle(p->xPath);
 	if(p->ns != NULL)	
 		DisposeHandle(p->ns);
-	if(p->fileNameStr != NULL)	
-		DisposeHandle(p->fileNameStr);
 	if(p->attribute != NULL)	
 		DisposeHandle(p->attribute);
 	if(p->val != NULL)
 		DisposeHandle(p->val);
 		
-	/* Shutdown libxml */
-	xmlCleanupParser();
-	
 	return err;	
 }
 

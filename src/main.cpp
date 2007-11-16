@@ -4,6 +4,8 @@ XMLutils - an XOP designed to work with XML files
 
 #include "XMLutils.h"
 
+int nextFileID = 1;
+std::map<int,igorXMLfile> allXMLfiles;
 
 #ifdef _MACINTOSH_
 HOST_IMPORT int main(IORecHandle ioRecHandle);
@@ -37,6 +39,14 @@ RegisterFunction()
 		case 5:
 			return((long)XMLsetAttr);
 			break;
+		case 6:
+			return ((long)XMLopenFile);
+			break;
+		case 7:
+			return ((long)XMLcloseFile);
+			break;
+		case 8:
+			return ((long)XMLSAVEFILE);
 	}
 	return NIL;
 }
@@ -50,8 +60,18 @@ static void
 XOPEntry(void)
 {	
 	long result = 0;
+	XMLcloseFileStruct p;
+	p.fileID = -1;
+	p.toSave = 0;
 
 	switch (GetXOPMessage()) {
+		case NEW:
+			result = XMLcloseFile(&p);
+			break;
+		case CLEANUP:
+			result = XMLcloseFile(&p);
+			xmlCleanupParser();
+			break;
 		case FUNCADDRS:
 			result = RegisterFunction();	// This tells Igor the address of our function.
 			break;
