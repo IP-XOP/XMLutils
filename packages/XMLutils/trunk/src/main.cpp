@@ -67,9 +67,11 @@ XOPEntry(void)
 	switch (GetXOPMessage()) {
 		case NEW:
 			result = XMLcloseFile(&p);
+			allXMLfiles.clear();
 			break;
 		case CLEANUP:
 			result = XMLcloseFile(&p);
+			allXMLfiles.clear();
 			xmlCleanupParser();
 			break;
 		case FUNCADDRS:
@@ -101,5 +103,25 @@ HOST_IMPORT void main(IORecHandle ioRecHandle)
 	else
 		SetXOPResult(0L);
 }
+
+#ifdef _WINDOWS_
+double roundf(double val){
+	double retval;
+	if(val>0){
+	if(val-floor(val) < 0.5){
+		retval = floor(val);
+	} else {
+		retval = ceil(val);
+	}
+	} else {
+	if(val-floor(val) <= 0.5){
+		retval = floor(val);
+	} else {
+		retval = ceil(val);
+	}
+}
+	return retval;
+}
+#endif
 
 
