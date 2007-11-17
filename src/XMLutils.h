@@ -26,6 +26,9 @@ typedef struct igorXMLfile {
 	xmlDoc* doc;
 }igorXMLfile, *igorXMLfilePtr;
 
+#ifdef _WINDOWS_
+	double roundf(double val);
+#endif
 
 /*
 in XMLelementlist.cpp

@@ -1,0 +1,115 @@
+/*	XOP-specific resources for SimpleFit on Windows
+
+	This file is compiled by the resource compiler and creates XOP-specific
+	resources that IGOR looks for in an XOP module.
+*/
+
+#include "XOPResources.h"			// Defines XOP-specific symbols.
+
+1100 STR#							// Custom error messages.
+BEGIN
+	//[1]
+	"XMLutils requires Igor Pro 5.04 or later.\0",
+	//[2]
+	"Error while parsing XML document.\0",
+	//[3]
+	"Unable to create new XPath context.\0",
+	//[4]
+	"Failed to register namespaces list.\0",
+	//[5]
+	"Unable to evaluate xpath expression.\0",
+	//[6]
+	"One of the input strings is NULL.\0",
+	//[7]
+	"Your Xpath expression did not compile.\0",	
+	//[8]
+	"Couldn't save the modified XML for some reason.\0",
+	//[9]
+	"Error while changing DOM.\0",
+	//[10]
+	"No XML file exists for that fileID.\0",
+	0,								// NOTE: 0 required to terminate the resource.
+END
+
+1101 STR#							// Misc strings read by Igor.
+BEGIN
+	"-1\0",							// -1 means we don't want to add a menu item.
+	"No Menu Item\0",				// Igor ignores item 2 because item 1 is -1.
+	"XMLutils Help.ihf\0",			// Name of XOP's help file.
+	0,								// NOTE: 0 required to terminate the resource.
+END
+
+1100 XOPI							// XOPI - Describes general XOP properties to IGOR. 
+BEGIN
+	XOP_VERSION,					// Version number of host XOP system.
+	DEV_SYS_CODE,					// Code for development system used to make XOP
+	0,								// True if XOP requires hierarchical menus
+	0,								// True if XOP requires math coprocessor
+	0								// True if XOP requires MMU
+END
+
+1100 XOPF							// Describes functions added by XOP to IGOR.
+BEGIN			
+		"XMLelemlist\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.									
+			NT_FP64,						// fileID
+			0,
+		"XMLstrFmXPath\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		HSTRING_TYPE,						// Return value type.								
+			NT_FP64,						//fileID
+			HSTRING_TYPE,					//xpath
+			HSTRING_TYPE,					//namespaces
+			HSTRING_TYPE,					//options
+			0,
+		"XMLWaveFmXPath\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.									
+			NT_FP64,						//fileID
+			HSTRING_TYPE,					//xpath
+			HSTRING_TYPE,					//namespaces
+			HSTRING_TYPE,					//options
+			0,
+		"XMLsetNodeStr\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.									
+			NT_FP64,						//fileID
+			HSTRING_TYPE,					//xpath
+			HSTRING_TYPE,					//namespaces
+			HSTRING_TYPE,					//content
+			0,	
+		"XMLlistAttr\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.									
+			NT_FP64,						//fileID
+			HSTRING_TYPE,					//xpath
+			HSTRING_TYPE,					//namespaces
+			0,
+		"XMLsetAttr\0",					// Function name.
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+			NT_FP64,						//fileID
+			HSTRING_TYPE,					//xpath
+			HSTRING_TYPE,					//namespaces
+			HSTRING_TYPE,					//atttribute to change
+			HSTRING_TYPE,					//value of the attribute
+			0,
+		"XMLopenFile\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.								
+			HSTRING_TYPE,					//filename
+			0,
+		"XMLcloseFile\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.								
+			NT_FP64,						//fileID
+			NT_FP64,						//0=nosave,1=save
+			0,
+		"XMLSAVEFILE\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.								
+			NT_FP64,						//fileID
+			0,	
+	0,								// NOTE: 0 required to terminate the resource.
+END
