@@ -11,7 +11,6 @@
 #include "XMLutils.h"
 
 
-
 int 
 print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
     int err = 0;
@@ -71,16 +70,17 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	int fileID = -1;
-	xmlXPathObject *xpathObj = NULL; 
+	xmlXPathObject *xpathObj; 
 	xmlDoc *doc = NULL;
-	
+	int size;
+
 	//the filename handle, Xpath handle,namespace handle,options handle
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *options = NULL;
 	//size of handles
 	int sizexPath,sizens,sizeoptions;
-				
+	
 	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
@@ -122,7 +122,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = allXMLfiles[p->fileID].doc;
+		doc = (allXMLfiles[p->fileID].doc);
 	}
 	
 	//execute Xpath expression
@@ -130,7 +130,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	if(err)
 		goto done;
 	//and print it out to a handle
-	print_xpath_nodes(doc, xpathObj->nodesetval, output);
+	print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
 	
 	p->returnString = output;
 done:

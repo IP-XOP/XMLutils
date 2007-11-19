@@ -7,7 +7,6 @@
  *
  */
 #include "XMLutils.h"
-
 /**
  * register_namespaces:
  * @xpathCtx:		the pointer to an XPath context.
@@ -31,8 +30,7 @@ register_namespaces(xmlXPathContextPtr xpathCtx, const xmlChar* nsList) {
 	xmlChar *ns_uri = (xmlChar*)("http://www.xrdml.com/XRDMeasurement/1.0");
 	if( err = xmlXPathRegisterNs(xpathCtx,prefix, ns_uri));*/
    
-    assert(xpathCtx);
-    assert(nsList);
+
 
     nsListDup = xmlStrdup(nsList);
     if(nsListDup == NULL) {
@@ -91,49 +89,51 @@ done:
  * contains the nodeSet that matches the expression.
  *
  */
- 
+
 xmlXPathObject*
-execute_xpath_expression(xmlDoc *doc, const xmlChar* xpathExpr, const xmlChar* nsList, int *err) {
+execute_xpath_expression(xmlDoc *doc, xmlChar* xpathExpr, xmlChar* nsList, int *err) {
 	
 	xmlXPathObject *xpathObj = NULL;
-    xmlXPathContextPtr xpathCtx = NULL; 
-	xmlXPathCompExprPtr comp = NULL;
+    xmlXPathContext *context = NULL; 
+	xmlXPathCompExpr *comp = NULL;
 	
-    /* Create xpath evaluation context */
-    xpathCtx = xmlXPathNewContext(doc);
-    if(xpathCtx == NULL) {
+    /*
+	Create xpath evaluation context
+	*/
+    context = xmlXPathNewContext(doc);
+    if(context == NULL) {
        *err = XPATH_CONTEXT_CREATION_ERROR;
 	   goto done;
     }
 	
-	/* compile xPath expression */
-	/* by compiling we cutout any problems with weird expressions, hopefully!*/
-	comp = xmlXPathCompile(xpathExpr);
-    if(comp == NULL){
-		*err = XPATH_COMPILE_ERROR;
-		goto done;
-	}
-	
     /* Register namespaces from list (if any) */
-    if((nsList != NULL) && (register_namespaces(xpathCtx, nsList) < 0)) {
+    if((nsList != NULL) && (register_namespaces(context, nsList) < 0)) {
 		*err = FAILED_TO_REGISTER_NAMESPACE;
 		goto done;
     }
 
-    /* Evaluate xpath expression */
-	xpathObj = xmlXPathCompiledEval(comp, xpathCtx);
+	/*
+	 compile xPath expression
+	by compiling we cutout any problems with weird expressions, hopefully!
+	*/
+	comp = xmlXPathCtxtCompile(context,xpathExpr);
+    if(comp == NULL){
+		*err = XPATH_COMPILE_ERROR;
+		goto done;
+	}
+
+    /* Evaluate xpath expression */	
+	xpathObj = xmlXPathCompiledEval(comp, context);
     if(xpathObj == NULL) {
         *err = UNABLE_TO_EVAL_XPATH_EXPR;
 		goto done;
-    }	
+    }
 
 done:
     /* Cleanup */
 	if(comp != NULL)
 		xmlXPathFreeCompExpr(comp);
-    if(xpathCtx != NULL)
-		xmlXPathFreeContext(xpathCtx);
+    if(context != NULL)
+		xmlXPathFreeContext(context);
     return xpathObj;
 }
-
-

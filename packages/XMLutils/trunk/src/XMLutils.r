@@ -34,6 +34,11 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Error while changing DOM.",
 	//[10]
 	"No XML file exists for that fileID.",
+	//[11]
+	"Could not create an XML document.",
+	//[12]
+	"Could not create a Node at the specified place.",
+
 	}
 };
 
@@ -124,6 +129,32 @@ resource 'XOPF' (1100) {
 		NT_FP64,						// Return value type.
 		{									
 		NT_FP64,						//fileID
+		},
+		"XMLcreateFile",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.
+		{									
+		HSTRING_TYPE,						//filename
+		HSTRING_TYPE,						//root emelment name
+		HSTRING_TYPE,						//namespace
+		},
+		"XMLaddNode",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+		{
+		NT_FP64,							//fileID
+		HSTRING_TYPE,						//xpath
+		HSTRING_TYPE,						//namespace
+		HSTRING_TYPE,						//name of element
+		NT_FP64,							//nodeType
+		},
+		"XMLdelNode",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+		{
+		NT_FP64,							//fileID
+		HSTRING_TYPE,						//xpath
+		HSTRING_TYPE,						//namespace
 		},
 	}
 };
