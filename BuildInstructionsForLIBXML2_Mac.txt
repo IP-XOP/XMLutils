@@ -8,7 +8,7 @@ Build instructions for making the libxml2 Universal binary on the Mac.  This lib
 
 4) Inside that folder type:
 
-env CFLAGS="-arch i386 -arch ppc" LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk" ./configure --disable-dependency-tracking --enable-static=no --without-python
+env CFLAGS="-arch i386 -arch ppc -g" LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk" ./configure --disable-dependency-tracking --enable-static=yes --without-python --with-debug
 
 This will configure libxml2 to be built as a universal binary.  Although I'm not sure, I think if you want a static library you have to put --enable-static=yes.  You should've already installed the developer tools that came with your Mac (Xcode).
 

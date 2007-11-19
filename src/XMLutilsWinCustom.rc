@@ -28,6 +28,10 @@ BEGIN
 	"Error while changing DOM.\0",
 	//[10]
 	"No XML file exists for that fileID.\0",
+	//[11]
+	"Could not create an XML document.\0",
+	//[12]
+	"Could not create a Node at the specified place.\0",
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
@@ -110,6 +114,29 @@ BEGIN
 				F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.								
 			NT_FP64,						//fileID
-			0,	
+			0,
+		"XMLcreateFile\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,						// Return value type.									
+    		HSTRING_TYPE,						//filename
+	      	HSTRING_TYPE,						//root emelment name
+	      	HSTRING_TYPE,						//namespace
+		0,
+		"XMLaddNode\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+    		NT_FP64,							//fileID
+    		HSTRING_TYPE,						//xpath
+    		HSTRING_TYPE,						//namespace
+    		HSTRING_TYPE,						//name of element
+    		NT_FP64,							//nodeType
+		0,
+		"XMLdelNode\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+    		NT_FP64,							//fileID
+    		HSTRING_TYPE,						//xpath
+    		HSTRING_TYPE,						//namespace
+		0,
 	0,								// NOTE: 0 required to terminate the resource.
 END

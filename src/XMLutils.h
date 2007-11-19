@@ -16,14 +16,13 @@
 #include <libxml/xPath.h>
 #include <libxml/xmlstring.h>
 #include <libxml/xpathInternals.h>
-#define LIBXML_STATIC
 #include <map>
 
 /* A structure to hold all the file IO information */
 typedef struct igorXMLfile {
 	XOP_FILE_REF fileRef;
 	char fileNameStr[MAX_PATH_LEN + 1];
-	xmlDoc* doc;
+	xmlDoc *doc;
 }igorXMLfile, *igorXMLfilePtr;
 
 #ifdef _WINDOWS_
@@ -42,7 +41,7 @@ typedef struct XMLelemlistStruct {
 int XMLelemlist(XMLelemlistStructPtr p);
 
 /* in XMLevaluateXPathExpression.cpp */
-xmlXPathObject* execute_xpath_expression(xmlDoc* doc, const xmlChar* xpathExpr, const xmlChar* nsList,  int* err);
+xmlXPathObject* execute_xpath_expression(xmlDoc* doc, xmlChar* xpathExpr, xmlChar* nsList,  int* err);
 
 /*
 in XMLstrFmXPath.cpp
@@ -135,4 +134,35 @@ typedef struct XMLfileSaveStruct {
 #include "XOPStructureAlignmentReset.h"
 int XMLSAVEFILE(XMLfileSaveStruct *p);
 
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLcreateFileStruct {
+	Handle ns;
+	Handle rootelement;
+	Handle fileName;
+	DOUBLE fileID;
+}XMLcreateFileStruct, *XMLcreateFileStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLcreateFile(XMLcreateFileStruct *p);
 
+/* in XMLchangeNodeStructure.cpp */
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLaddNodeStruct {
+	DOUBLE nodeType;
+	Handle nodeName;
+	Handle ns;
+	Handle xPath;
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLaddNodeStruct, *XMLaddNodeStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLaddNode(XMLaddNodeStruct*);
+
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLdelNodeStruct {
+	Handle ns;
+	Handle xPath;
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLdelNodeStruct, *XMLdelNodeStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLdelNode(XMLdelNodeStruct*);

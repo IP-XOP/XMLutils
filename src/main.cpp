@@ -47,6 +47,16 @@ RegisterFunction()
 			break;
 		case 8:
 			return ((long)XMLSAVEFILE);
+			break;
+		case 9:
+			return ((long)XMLcreateFile);
+			break;
+		case 10:
+			return ((long)XMLaddNode);
+			break;
+		case 11:
+			return ((long)XMLdelNode);
+			break;
 	}
 	return NIL;
 }
@@ -66,6 +76,7 @@ XOPEntry(void)
 
 	switch (GetXOPMessage()) {
 		case NEW:
+			xmlInitParser();
 			result = XMLcloseFile(&p);
 			allXMLfiles.clear();
 			break;

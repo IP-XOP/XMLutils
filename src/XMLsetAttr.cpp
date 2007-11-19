@@ -106,7 +106,7 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = allXMLfiles[p->fileID].doc;
+		doc = (allXMLfiles[p->fileID].doc);
 	}
 	
 	//execute Xpath expression
