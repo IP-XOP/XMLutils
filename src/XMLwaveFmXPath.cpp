@@ -23,14 +23,22 @@
 static int
 outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	int err = 0;
-	int numNodes;
-	int j;
+	int numNodes = 0;
+	int j = 0;
 	long ii = 0;
 	Handle transfer = NULL;
 
 	char *outputBuf = NULL;
 	char *pch = NULL;
 	xmlChar* xmloutputBuf = NULL;
+	//delimiter is going to be used in the string tokenizer
+	//the default will be space.
+	const char *delimiter = " ";
+	
+	//for know lets use the options string to pass in the delimiters
+	if (strlen(options) > 0) {
+		delimiter = options;
+	}
 	
 	/* work out how many nodes in the nodeset from the Xpath object */
 	numNodes = (xpathObj->nodesetval) ? xpathObj->nodesetval->nodeNr : 0;
@@ -119,7 +127,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 			
 		/* tokenize the output */
 		ii=0;
-		pch = strtok(outputBuf, " ");
+		pch = strtok(outputBuf, delimiter);
 		if(pch != NULL){		//the first strtok pops the first element off the stack.
 			if(err = PutCStringInHandle(pch,transfer))
 					goto done;
@@ -137,7 +145,8 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		}
 	
 		while (pch != NULL){
-			pch = strtok (NULL, " ");
+			pch = strtok (NULL, delimiter);
+				
 			if(pch != NULL){
 				if(err = PutCStringInHandle(pch,transfer))
 					goto done;
