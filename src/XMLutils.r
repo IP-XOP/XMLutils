@@ -146,6 +146,7 @@ resource 'XOPF' (1100) {
 		HSTRING_TYPE,						//xpath
 		HSTRING_TYPE,						//namespace
 		HSTRING_TYPE,						//name of element
+		HSTRING_TYPE,						//element content
 		NT_FP64,							//nodeType
 		},
 		"XMLdelNode",
