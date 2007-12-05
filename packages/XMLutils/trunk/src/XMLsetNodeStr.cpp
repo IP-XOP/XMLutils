@@ -26,8 +26,8 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
 		
     size = (nodes) ? nodes->nodeNr : 0;
    
-	if(strlen((char*)value)==0)
-		value = (xmlChar*)("\r");
+//	if(strlen((char*)value)==0)
+//		value = (xmlChar*)("");
     /*
      * NOTE: the nodes are processed in reverse order, i.e. reverse document
      *       order because xmlNodeSetContent can actually free up descendant

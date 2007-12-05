@@ -148,6 +148,7 @@ int XMLcreateFile(XMLcreateFileStruct *p);
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLaddNodeStruct {
 	DOUBLE nodeType;
+	Handle content;
 	Handle nodeName;
 	Handle ns;
 	Handle xPath;
@@ -155,7 +156,7 @@ typedef struct XMLaddNodeStruct {
 	DOUBLE retval;
 }XMLaddNodeStruct, *XMLaddNodeStructPtr;
 #include "XOPStructureAlignmentReset.h"
-int XMLaddNode(XMLaddNodeStruct*);
+int XMLaddNode(XMLaddNodeStruct *);
 
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLdelNodeStruct {
@@ -165,4 +166,4 @@ typedef struct XMLdelNodeStruct {
 	DOUBLE retval;
 }XMLdelNodeStruct, *XMLdelNodeStructPtr;
 #include "XOPStructureAlignmentReset.h"
-int XMLdelNode(XMLdelNodeStruct*);
+int XMLdelNode(XMLdelNodeStruct *);

@@ -129,6 +129,7 @@ BEGIN
     		HSTRING_TYPE,						//xpath
     		HSTRING_TYPE,						//namespace
     		HSTRING_TYPE,						//name of element
+    		HSTRING_TYPE,						//element content
     		NT_FP64,							//nodeType
 		0,
 		"XMLdelNode\0",

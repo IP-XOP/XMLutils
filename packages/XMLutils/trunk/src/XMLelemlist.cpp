@@ -25,17 +25,28 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
     xmlNode *cur_node = NULL;
 	xmlChar *path = NULL;
 	
+	xmlChar* attrName = NULL;
+	xmlAttr* properties = NULL;
+	
 	long size = 0;
-	//	char *newline = "\r";
+	char *sep = ";";
+	char *sep1 = ":";
 	long dimensionSizes[MAX_DIMENSIONS+1];
 	long numDimensions = 0;
 	long indices[MAX_DIMENSIONS+1];
 	Handle pathName = NULL;
-	
+
 	memset(indices, 0, sizeof(indices));
-		
+	
+	//XPath in 1st column
+	//Namesoace in 2nd column
+	//attribute names and properties in 3rd column
+			
     for (cur_node = a_node; cur_node ; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
+			pathName = NewHandle(0);
+			if(err =MemError())
+				goto done;
 			path = xmlGetNodePath(cur_node);
 		
 			if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
@@ -48,8 +59,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(err = MDChangeWave(textWav,-1,dimensionSizes))
 				goto done;
 			
-			size = strlen((char*)path);
-			if(err = PtrToHand(path, &pathName, size))
+			if(err = PutCStringInHandle((char*)path,pathName))
 				goto done;
 			indices[0] = dimensionSizes[0]-1;
 			indices[1] = 0;
@@ -59,37 +69,49 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			}
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 				goto done;
-			WaveHandleModified(textWav);
-			if(pathName !=NULL){
-				DisposeHandle(pathName);
-				pathName = NULL;
-			}
+
 			if(cur_node->ns != NULL && cur_node->ns->href != NULL){
-			size = strlen((char*)cur_node->ns->href);
-			if(err = PtrToHand(cur_node->ns->href, &pathName, size))
-				goto done;
-			indices[1] = 1;
-			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
-				goto done;
-			WaveHandleModified(textWav);
-			if(pathName !=NULL){
-				DisposeHandle(pathName);
-				pathName = NULL;
+				if(err = PutCStringInHandle((char*)(char*)cur_node->ns->href,pathName))
+					goto done;
+				indices[1] = 1;
+				if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+					goto done;
 			}
-			}
-			if(cur_node->ns != NULL && cur_node->ns->prefix != NULL){
-			size = strlen((char*)cur_node->ns->prefix);
-			if(err = PtrToHand(cur_node->ns->prefix, &pathName, size))
+			
+			SetHandleSize(pathName,0);
+			if(err = MemError())
 				goto done;
+			
+			for(properties = cur_node->properties ; properties != NULL ; properties = properties->next){
+				attrName = (xmlChar*) properties->name;
+				if(err = PtrAndHand((char*)attrName,pathName,strlen((char*)attrName)))
+					goto done;
+				if(err = PtrAndHand(sep1,pathName,strlen(sep1)))
+					goto done;	
+				attrName = xmlGetProp(cur_node, properties->name);
+				if(err = PtrAndHand((char*)attrName,pathName,strlen((char*)attrName)))
+					goto done;
+				if(err = PtrAndHand(sep,pathName,strlen(sep)))
+					goto done;	
+			}
 			indices[1] = 2;
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
-				goto done;
-			WaveHandleModified(textWav);
-			if(pathName !=NULL){
+					goto done;
+			if(pathName != NULL)
 				DisposeHandle(pathName);
-				pathName = NULL;
-			}
-			}
+//			if(cur_node->ns != NULL && cur_node->ns->prefix != NULL){
+//			size = strlen((char*)cur_node->ns->prefix);
+//			if(err = PtrToHand(cur_node->ns->prefix, &pathName, size))
+//				goto done;
+//			indices[1] = 2;
+//			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+//				goto done;
+//			WaveHandleModified(textWav);
+//			if(pathName !=NULL){
+//				DisposeHandle(pathName);
+//				pathName = NULL;
+//			}
+//			}
 			if((cur_node->children != NULL) && (err = fill_element_names(cur_node->children, textWav)))
 				goto done;
 		}

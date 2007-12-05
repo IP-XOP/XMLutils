@@ -32,7 +32,7 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 				xmloutputBuf =xmlNodeGetContent(nodes->nodeTab[i]->children);
 				break;
 			case(XML_TEXT_NODE):
-				xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);
+					xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);
 				break;
 			default:
 				xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);//(doc, nodes->nodeTab[i], 1);
