@@ -70,9 +70,8 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	int fileID = -1;
-	xmlXPathObject *xpathObj; 
+	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
-	int size;
 
 	//the filename handle, Xpath handle,namespace handle,options handle
 	char *xPath = NULL;
@@ -116,7 +115,8 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	output = NewHandle(0); 
 	if (output == NULL) 
 		return NOMEM; 
-    
+    p->returnString = output;
+
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		err = FILEID_DOESNT_EXIST;
@@ -142,9 +142,12 @@ done:
 		free(ns);
 	if(options != NULL)
 		free(options);
-	DisposeHandle(p->xPath);
-	DisposeHandle(p->options);
-	DisposeHandle(p->ns);
+	if(p->xPath != NULL)
+		DisposeHandle(p->xPath);
+	if(p->options != NULL)
+		DisposeHandle(p->options);
+	if(p->ns)
+		DisposeHandle(p->ns);
 		
 	return err;	
 }
