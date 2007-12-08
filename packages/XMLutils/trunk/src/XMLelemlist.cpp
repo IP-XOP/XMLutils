@@ -97,8 +97,10 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			indices[1] = 2;
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 					goto done;
-			if(pathName != NULL)
+			if(pathName != NULL){
 				DisposeHandle(pathName);
+				pathName = NULL;
+			}
 //			if(cur_node->ns != NULL && cur_node->ns->prefix != NULL){
 //			size = strlen((char*)cur_node->ns->prefix);
 //			if(err = PtrToHand(cur_node->ns->prefix, &pathName, size))
@@ -115,10 +117,14 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if((cur_node->children != NULL) && (err = fill_element_names(cur_node->children, textWav)))
 				goto done;
 		}
-		if(path != NULL)
+		if(path != NULL){
 			xmlFree(path);
-		if(pathName != NULL)
-			DisposeHandle(pathName);	
+			path = NULL;
+			}
+		if(pathName != NULL){
+			DisposeHandle(pathName);
+			pathName = NULL;
+			}	
 	}
 done:
 if(pathName != NULL)

@@ -18,6 +18,8 @@
 #include <libxml/xpathInternals.h>
 #include <map>
 
+#define LIBXML_STATIC
+
 /* A structure to hold all the file IO information */
 typedef struct igorXMLfile {
 	XOP_FILE_REF fileRef;
