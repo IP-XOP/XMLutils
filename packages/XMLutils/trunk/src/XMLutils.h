@@ -169,3 +169,16 @@ typedef struct XMLdelNodeStruct {
 }XMLdelNodeStruct, *XMLdelNodeStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLdelNode(XMLdelNodeStruct *);
+
+/*
+in XMLlistXPath.cpp
+*/
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLlistXpathStruct {
+	Handle ns;						//a namespace to register
+	Handle xPath;					//the xpath
+	DOUBLE fileID;					//the fileID to load
+	DOUBLE retval;					//return value
+}XMLlistXpathStruct, *XMLlistXpathStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLlistXPath(XMLlistXpathStructPtr p);
