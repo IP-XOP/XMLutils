@@ -57,6 +57,9 @@ RegisterFunction()
 		case 11:
 			return ((long)XMLdelNode);
 			break;
+		case 12:
+			return ((long)XMLlistXPath);
+			break;
 	}
 	return NIL;
 }

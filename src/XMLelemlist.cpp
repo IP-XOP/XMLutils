@@ -28,7 +28,6 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	xmlChar* attrName = NULL;
 	xmlAttr* properties = NULL;
 	
-	long size = 0;
 	char *sep = ";";
 	char *sep1 = ":";
 	long dimensionSizes[MAX_DIMENSIONS+1];

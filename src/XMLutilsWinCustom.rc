@@ -110,7 +110,7 @@ BEGIN
 			NT_FP64,						//fileID
 			NT_FP64,						//0=nosave,1=save
 			0,
-		"XMLSAVEFILE\0",
+		"XMLsavefile\0",
 				F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.								
 			NT_FP64,						//fileID
@@ -139,5 +139,12 @@ BEGIN
     		HSTRING_TYPE,						//xpath
     		HSTRING_TYPE,						//namespace
 		0,
+		"XMLlistXPath\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+    		NT_FP64,							//fileID
+    		HSTRING_TYPE,						//xpath
+    		HSTRING_TYPE,						//namespace
+    	0,
 	0,								// NOTE: 0 required to terminate the resource.
 END

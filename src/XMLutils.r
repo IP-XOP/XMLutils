@@ -124,7 +124,7 @@ resource 'XOPF' (1100) {
 		NT_FP64,						//fileID
 		NT_FP64,						//0=nosave,1=save
 		},
-		"XMLSAVEFILE",
+		"XMLsaveFile",
 				F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,						// Return value type.
 		{									
@@ -150,6 +150,14 @@ resource 'XOPF' (1100) {
 		NT_FP64,							//nodeType
 		},
 		"XMLdelNode",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+		{
+		NT_FP64,							//fileID
+		HSTRING_TYPE,						//xpath
+		HSTRING_TYPE,						//namespace
+		},
+		"XMLlistXPath",
 				F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,
 		{
