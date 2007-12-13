@@ -58,9 +58,7 @@ XMLopenFile(XMLopenFileStruct *p){
 	if(isMAC)
 		strcpy(nativePath, unixpath);
 	#endif
-	
-	err2 = xmlKeepBlanksDefault(1);
-	
+		
 	/* Load XML document */
     doc = xmlParseFile(nativePath);
     if (doc == NULL) {
@@ -168,7 +166,7 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 		doc = (allXMLfiles[p->fileID].doc);
 		fileName = (char*) allXMLfiles[p->fileID].fileNameStr;
 	}
-	err2 = xmlKeepBlanksDefault(0);
+
 	xmlIndentTreeOutput = 1;
 	
 	if(xmlSaveFormatFileEnc(allXMLfiles[p->fileID].fileNameStr , doc , NULL , 1) == -1){
@@ -257,8 +255,12 @@ if(root_element == NULL){
 	goto done;
 }
 
-nspace = xmlNewNs(root_element, BAD_CAST ns, BAD_CAST prefix );
-root_element->ns = nspace;
+if(strlen(prefix)>0){
+	nspace = xmlNewNs(root_element, BAD_CAST ns, BAD_CAST prefix );
+	root_element->ns = nspace;
+} else {
+	nspace = xmlNewNs(root_element, BAD_CAST ns, NULL );
+}
 
 root_element = xmlDocSetRootElement(doc,root_element);
 root_element = xmlDocGetRootElement(doc);
