@@ -67,13 +67,10 @@ for(j = 0; j < numNodes; ++j) {
 				 curtype==1 ||
 				  curtype==6 ||
 				   curtype==2)
-//				if(xmlStrlen(content)==0){
-//					added_node = xmlNewChild(cur_node,NULL,nodeName,NULL);			
-//				} else {
+{
 					added_node = xmlNewText(content);
 					added_node = xmlAddChild(cur_node,added_node);
-//					added_node = xmlNewChild(cur_node,NULL,nodeName,content);
-//				}
+}
 			break;
 		case XML_CDATA_SECTION_NODE:
 			break;
@@ -83,7 +80,13 @@ for(j = 0; j < numNodes; ++j) {
 		case XML_PI_NODE:
 			break;
 		case XML_COMMENT_NODE :
-			
+			if(curtype==1 ||
+				curtype==3 ||
+				 curtype==9)
+{
+					added_node = xmlNewComment(content);
+					added_node = xmlAddChild(cur_node,added_node);
+}
 			break;
 		case XML_DOCUMENT_NODE :
 			
