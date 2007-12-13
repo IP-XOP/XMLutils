@@ -73,7 +73,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				SetHandleSize(pathName , 0);
 				if(MemError())
 					goto done;
-				if(cur_node->ns->prefix != NULL){
+				if(cur_node->ns->prefix != NULL && xmlStrlen(cur_node->ns->prefix)>0){
 					if(err = PtrAndHand((char*)cur_node->ns->prefix,pathName,strlen((char*)cur_node->ns->prefix)))
 						goto done;
 					if(err = PtrAndHand((char*)"=",pathName,strlen((char*)"=")))
