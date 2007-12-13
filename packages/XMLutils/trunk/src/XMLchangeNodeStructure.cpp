@@ -53,7 +53,7 @@ for(j = 0; j < numNodes; ++j) {
 				 curtype==5 ||
 				  curtype==1 ||
 				   curtype==6)
-				if(xmlStrlen(content)==0){
+				if(xmlStrlen(content)==0){///in both cases put in default namespace
 					added_node = xmlNewChild(cur_node,NULL,nodeName,NULL);			
 				} else { 
 					added_node = xmlNewChild(cur_node,NULL,nodeName,content);
