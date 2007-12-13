@@ -193,6 +193,7 @@ char *isMAC = NULL;
 igorXMLfile openfile;
 xmlDoc *doc = NULL;
 xmlNode *root_element= NULL ;
+xmlNs *nspace = NULL;
 char *rootname   = NULL;
 char *ns = NULL;
 
@@ -248,6 +249,9 @@ if(root_element == NULL){
 	p->fileID = -1;
 	goto done;
 }
+
+nspace = xmlNewNs(root_element, BAD_CAST ns, NULL );
+
 root_element = xmlDocSetRootElement(doc,root_element);
 root_element = xmlDocGetRootElement(doc);
 if(root_element == NULL){
@@ -267,10 +271,12 @@ p->fileID = nextFileID;
 
 done:
 if(err){
-	if(root_element != NULL)
-		xmlFreeNode(root_element);
+//	if(root_element != NULL)
+//		xmlFreeNode(root_element);
 	if(doc != NULL)
 		xmlFreeDoc(doc);
+	if(nspace != NULL)
+		xmlFreeNs(nspace);
 }
 
 if(rootname != NULL)
