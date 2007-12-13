@@ -196,6 +196,7 @@ xmlNode *root_element= NULL ;
 xmlNs *nspace = NULL;
 char *rootname   = NULL;
 char *ns = NULL;
+char *prefix = NULL;
 
 extern std::map<int,igorXMLfile> allXMLfiles;
 extern int nextFileID;
@@ -216,11 +217,17 @@ ns = (char*)malloc(GetHandleSize(p->ns)*sizeof(char)+1);
 if(ns == NULL){
 	err = NOMEM;goto done;
 }
+prefix = (char*)malloc(GetHandleSize(p->prefix)*sizeof(char)+1);
+if(prefix == NULL){
+	err = NOMEM;goto done;
+}
 
 /* get all of the igor input strings into C-strings */
 if (err = GetCStringFromHandle(p->rootelement,rootname,GetHandleSize(p->rootelement)))
 	goto done;
 if (err = GetCStringFromHandle(p->ns, ns, GetHandleSize(p->ns)))
+	goto done;
+if (err = GetCStringFromHandle(p->prefix, prefix, GetHandleSize(p->prefix)))
 	goto done;
 if(err = GetCStringFromHandle(p->fileName,fullFilePath,MAX_PATH_LEN))
 	goto done;
@@ -250,7 +257,8 @@ if(root_element == NULL){
 	goto done;
 }
 
-nspace = xmlNewNs(root_element, BAD_CAST ns, NULL );
+nspace = xmlNewNs(root_element, BAD_CAST ns, BAD_CAST prefix );
+root_element->ns = nspace;
 
 root_element = xmlDocSetRootElement(doc,root_element);
 root_element = xmlDocGetRootElement(doc);
@@ -283,6 +291,9 @@ if(rootname != NULL)
 	free(rootname);
 if(ns != NULL)
 	free(ns);
+if(prefix != NULL)
+	free(prefix);
+DisposeHandle(p->prefix);
 DisposeHandle(p->fileName);
 DisposeHandle(p->rootelement);
 DisposeHandle(p->ns);

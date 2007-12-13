@@ -121,6 +121,7 @@ BEGIN
     		HSTRING_TYPE,						//filename
 	      	HSTRING_TYPE,						//root emelment name
 	      	HSTRING_TYPE,						//namespace
+	      	HSTRING_TYPE,						//prefix
 		0,
 		"XMLaddNode\0",
 				F_EXP | F_EXTERNAL,				// Function category,

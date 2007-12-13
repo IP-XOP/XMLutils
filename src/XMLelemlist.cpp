@@ -70,8 +70,17 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				goto done;
 
 			if(cur_node->ns != NULL && cur_node->ns->href != NULL){
-				if(err = PutCStringInHandle((char*)(char*)cur_node->ns->href,pathName))
+				SetHandleSize(pathName , 0);
+				if(MemError())
 					goto done;
+				if(cur_node->ns->prefix != NULL){
+					if(err = PtrAndHand((char*)cur_node->ns->prefix,pathName,strlen((char*)cur_node->ns->prefix)))
+						goto done;
+					if(err = PtrAndHand((char*)"=",pathName,strlen((char*)"=")))
+						goto done;
+				}
+				if(err = PtrAndHand((char*)cur_node->ns->href,pathName,strlen((char*)cur_node->ns->href)))
+					goto done;					
 				indices[1] = 1;
 				if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 					goto done;

@@ -32,7 +32,7 @@ XML_XINCLUDE_END = 20
 XML_DOCB_DOCUMENT_NODE = 21
 */
 
-int add_nodes(xmlXPathObject *xpathObj,xmlChar* nodeName,int nodeType, xmlChar* content){
+int add_nodes(xmlXPathObject *xpathObj,xmlChar* nodeName, xmlChar* ns, int nodeType, xmlChar* content){
 int err = 0;
 xmlNode *cur_node = NULL;
 xmlNode *added_node = NULL;
@@ -200,7 +200,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	if(err)
 		goto done;
 	
-	if(err = add_nodes(xpathObj,BAD_CAST nodeName, nodeType, BAD_CAST content))
+	if(err = add_nodes(xpathObj,BAD_CAST nodeName, BAD_CAST ns, nodeType, BAD_CAST content))
 		goto done;
 		
 done:
