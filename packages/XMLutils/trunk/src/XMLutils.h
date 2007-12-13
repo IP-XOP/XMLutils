@@ -138,6 +138,7 @@ int XMLSAVEFILE(XMLfileSaveStruct *p);
 
 #include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLcreateFileStruct {
+	Handle prefix;
 	Handle ns;
 	Handle rootelement;
 	Handle fileName;

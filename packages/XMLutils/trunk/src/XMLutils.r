@@ -137,6 +137,7 @@ resource 'XOPF' (1100) {
 		HSTRING_TYPE,						//filename
 		HSTRING_TYPE,						//root emelment name
 		HSTRING_TYPE,						//namespace
+		HSTRING_TYPE,						//prefix
 		},
 		"XMLaddNode",
 				F_EXP | F_EXTERNAL,				// Function category,
