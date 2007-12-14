@@ -151,7 +151,6 @@ done:
 int
 XMLSAVEFILE(XMLfileSaveStruct *p){
 	int err = 0;
-	int err2;
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	int fileID = -1;
 	xmlDoc *doc = NULL;

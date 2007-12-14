@@ -60,6 +60,9 @@ RegisterFunction()
 		case 12:
 			return ((long)XMLlistXPath);
 			break;
+		case 13:
+			return ((long)XMLdocDump);
+			break;
 	}
 	return NIL;
 }

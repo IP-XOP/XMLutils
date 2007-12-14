@@ -147,5 +147,10 @@ BEGIN
     		HSTRING_TYPE,						//xpath
     		HSTRING_TYPE,						//namespace
     	0,
+    	"XMLdocDump\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+    		NT_FP64,							//fileID
+    	0,
 	0,								// NOTE: 0 required to terminate the resource.
 END

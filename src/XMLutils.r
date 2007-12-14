@@ -166,5 +166,11 @@ resource 'XOPF' (1100) {
 		HSTRING_TYPE,						//xpath
 		HSTRING_TYPE,						//namespace
 		},
+		"XMLdocDump",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+		{
+		NT_FP64,							//fileID
+		},
 	}
 };
