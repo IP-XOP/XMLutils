@@ -183,3 +183,14 @@ typedef struct XMLlistXpathStruct {
 }XMLlistXpathStruct, *XMLlistXpathStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLlistXPath(XMLlistXpathStructPtr p);
+
+/*
+in XMLdumpDoc.cpp
+*/
+#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+typedef struct XMLdocDumpStruct {
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLdocDumpStruct, *XMLdocDumpStructPtr;
+#include "XOPStructureAlignmentReset.h"
+int XMLdocDump(XMLdocDumpStruct *p);
