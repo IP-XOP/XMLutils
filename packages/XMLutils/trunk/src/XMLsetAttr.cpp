@@ -35,13 +35,13 @@ set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
     int i;
 	xmlAttr  *cur = NULL;
 	xmlChar *entityEncoded = NULL;
-	
+
 	entityEncoded = xmlEncodeEntitiesReentrant(doc, BAD_CAST val);
 	
 	size = (nodes) ? nodes->nodeNr : 0;
 	
 	for(i = 0; i < size; ++i) {
-		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*)attribute, (xmlChar*)val);
+		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*)attribute, (xmlChar*)entityEncoded);
 	}
 
 done:
@@ -107,6 +107,12 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		goto done;
 	if (err = GetCStringFromHandle(p->val, value, sizevalue))
 		goto done;
+		
+	//check if the node name is invalid
+	if(xmlValidateName(BAD_CAST attribute , 0) != 0){
+		err = INVALID_NODE_NAME;
+		goto done;
+	}
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
