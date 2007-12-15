@@ -34,13 +34,20 @@ set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
 	int size;
     int i;
 	xmlAttr  *cur = NULL;
+	xmlChar *entityEncoded = NULL;
+	
+	entityEncoded = xmlEncodeEntitiesReentrant(doc, BAD_CAST val);
+	
 	size = (nodes) ? nodes->nodeNr : 0;
-    	
+	
 	for(i = 0; i < size; ++i) {
 		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*)attribute, (xmlChar*)val);
 	}
 
 done:
+	if(entityEncoded!= NULL)
+		xmlFree(entityEncoded);
+		
 	return err;
 }
 

@@ -23,7 +23,11 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
     int err = 0;
 	int size;
     int i;
-		
+	xmlChar *encValue = NULL;
+	
+	if(nodes->nodeTab[0] != NULL){
+		encValue = xmlEncodeEntitiesReentrant(nodes->nodeTab[0]->doc, value);
+	}
     size = (nodes) ? nodes->nodeNr : 0;
    
 //	if(strlen((char*)value)==0)
@@ -37,7 +41,7 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
      *       done carefully !
      */
     for(i = size - 1; i >= 0; i--) {
-				xmlNodeSetContent(nodes->nodeTab[i], value);
+				xmlNodeSetContent(nodes->nodeTab[i], encValue);
 	/*
 	 * All the elements returned by an XPath query are pointers to
 	 * elements from the tree *except* namespace nodes where the XPath
@@ -59,6 +63,9 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
 	    nodes->nodeTab[i] = NULL;
     }
 	done:
+	if(encValue != NULL)
+		xmlFree(encValue);
+
 	return err;
 }
 

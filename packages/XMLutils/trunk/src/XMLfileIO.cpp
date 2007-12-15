@@ -241,12 +241,22 @@ if(isMAC)
 	strcpy(nativePath, unixpath);
 #endif
 
+//create a new XML document
 doc = xmlNewDoc(BAD_CAST "1.0");
 if(doc == NULL){
 	err = COULDNT_CREATE_XMLDOC;
 	p->fileID = -1;
 	goto done;
 }
+
+//check if the node name is invalid
+if(xmlValidateName(BAD_CAST rootname , 0) != 0){
+	err = INVALID_NODE_NAME;
+	goto done;
+}
+		
+
+//create the root element
 root_element=xmlNewNode(NULL , BAD_CAST rootname);
 if(root_element == NULL){
 	err = COULDNT_CREATE_NODE;
@@ -280,14 +290,11 @@ p->fileID = nextFileID;
 
 done:
 if(err){
-//	if(root_element != NULL)
-//		xmlFreeNode(root_element);
 	if(doc != NULL)
 		xmlFreeDoc(doc);
 	if(nspace != NULL)
 		xmlFreeNs(nspace);
 }
-
 if(rootname != NULL)
 	free(rootname);
 if(ns != NULL)

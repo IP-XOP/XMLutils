@@ -38,6 +38,8 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Could not create an XML document.",
 	//[12]
 	"Could not create a Node at the specified place.",
+	//[13]
+	"Node name is not valid - cannot contain spaces, <, >, &, ;.",
 
 	}
 };
