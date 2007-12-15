@@ -38,8 +38,14 @@ xmlNode *cur_node = NULL;
 xmlNode *added_node = NULL;
 int numNodes,j,curtype;
 
+xmlChar *encContent = NULL;
 xmlIndentTreeOutput = 1;
-
+					 
+//the content may have non-allowed XML characters, such as < or >, encode them
+if(xpathObj->nodesetval->nodeTab[0] != NULL){
+	encContent = xmlEncodeEntitiesReentrant(xpathObj->nodesetval->nodeTab[0]->doc, content);
+}
+	
 /* work out how many nodes in the nodeset from the Xpath object */
 numNodes = (xpathObj->nodesetval) ? xpathObj->nodesetval->nodeNr : 0;
 
@@ -56,7 +62,7 @@ for(j = 0; j < numNodes; ++j) {
 				if(xmlStrlen(content)==0){///in both cases put in default namespace
 					added_node = xmlNewChild(cur_node,NULL,nodeName,NULL);			
 				} else { 
-					added_node = xmlNewChild(cur_node,NULL,nodeName,content);
+					added_node = xmlNewChild(cur_node,NULL,nodeName,encContent);
 				}
 			break;
 		case XML_ATTRIBUTE_NODE:
@@ -68,7 +74,7 @@ for(j = 0; j < numNodes; ++j) {
 				  curtype==6 ||
 				   curtype==2)
 {
-					added_node = xmlNewText(content);
+					added_node = xmlNewText(encContent);
 					added_node = xmlAddChild(cur_node,added_node);
 }
 			break;
@@ -80,9 +86,12 @@ for(j = 0; j < numNodes; ++j) {
 		case XML_PI_NODE:
 			break;
 		case XML_COMMENT_NODE :
-			if(curtype==1 ||
-				curtype==3 ||
-				 curtype==9)
+			if(curtype == 1 ||
+				curtype == 3 ||
+				 curtype == 9 ||
+				  curtype == 11 ||
+				   curtype == 5 ||
+				    curtype == 6)
 {
 					added_node = xmlNewComment(content);
 					added_node = xmlAddChild(cur_node,added_node);
@@ -125,7 +134,10 @@ for(j = 0; j < numNodes; ++j) {
 	
 	}
 }
-
+done:
+	if(encContent != NULL)
+		xmlFree(encContent);
+		
 return err;
 }
 
@@ -186,6 +198,12 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 	if (err = GetCStringFromHandle(p->content, content, sizecontent))
 		goto done;
+		
+	//check if the node name is invalid
+	if(xmlValidateName(BAD_CAST nodeName , 0) != 0){
+		err = INVALID_NODE_NAME;
+		goto done;
+	}
 		
 	nodeType = (int)roundf(p->nodeType);
 	
