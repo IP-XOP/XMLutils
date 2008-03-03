@@ -40,10 +40,11 @@ XMLopenFile(XMLopenFileStruct *p){
 	
 	igorXMLfile openfile;
 	xmlDoc *doc = NULL;
+//	xmlValidCtxt *ctxt = NULL;
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	extern int nextFileID;
 	
-		
+	
 	if(err = GetCStringFromHandle(p->fullFilePath,fullFilePath,MAX_PATH_LEN))
 		goto done;
 	//get native filesystem filepath
@@ -66,6 +67,22 @@ XMLopenFile(XMLopenFileStruct *p){
 		goto done;
     }
 	
+	//validate the document
+//	ctxt = xmlNewValidCtxt();
+//	if (ctxt == NULL) {
+//		err = XML_PARSERCTXT_ERROR;
+//		goto done;
+//	}
+//	if(xmlValidateDocument(ctxt,doc) != 1){
+//		err = XMLDOC_NOTVALIDATED;
+//		goto done;
+//	}
+//	if(xmlValidateDocumentFinal(ctxt,doc) != 1){
+//		err = XMLDOC_NOTVALIDATED;
+//		goto done;
+//	}
+	
+	
 	if(err = XOPOpenFile(nativePath,0,&fileRef))
 		goto done;
 	
@@ -87,7 +104,11 @@ done:
 	}
 	if(err)
 		p->retval = -1;
-		
+	
+//	if(ctxt != NULL)
+//		xmlFreeValidCtxt(ctxt);
+	if(p->fullFilePath)
+		DisposeHandle(p->fullFilePath);
 	return err;
 }
 
@@ -136,7 +157,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 					xmlFreeDoc( (allXMLfiles[p->fileID].doc) );
 					allXMLfiles.erase(p->fileID);
 				} else {
-					xmlFreeDoc( (allXMLfiles[p->fileID].doc) );
+					xmlFreeDoc((allXMLfiles[p->fileID].doc));
 					tmpfileref = allXMLfiles[p->fileID].fileRef;
 					if(err = XOPCloseFile(tmpfileref));
 					allXMLfiles.erase(p->fileID);

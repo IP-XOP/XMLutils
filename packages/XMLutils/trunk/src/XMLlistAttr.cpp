@@ -25,7 +25,8 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
     int err = 0;
 	int size;
     int i;
-	xmlChar* xmloutputBuf = (xmlChar*)("");
+	xmlChar* xmloutputBuf = NULL;
+	xmlChar* xmlNodePath = NULL;
 	xmlChar* attrVal = NULL;
 	xmlAttr* properties = NULL;
 
@@ -47,7 +48,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 	}
 	
 	size = (nodes) ? nodes->nodeNr : 0;
-    	
+  
 	for(i = 0; i < size; ++i) {
 		
 		for(properties = nodes->nodeTab[i]->properties ; properties != NULL ; properties = properties->next){
@@ -59,8 +60,8 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			dimensionSizes[1] = 3;
 			if(err = MDChangeWave(outputWav,-1,dimensionSizes))
 				goto done;
-			xmloutputBuf = xmlGetNodePath(nodes->nodeTab[i]);
-			if(err = PutCStringInHandle((char*)xmloutputBuf,transfer))
+			xmlNodePath = xmlGetNodePath(nodes->nodeTab[i]);
+			if(err = PutCStringInHandle((char*)xmlNodePath,transfer))
 				goto done;
 			if(err = MDSetTextWavePointValue(outputWav,indices,transfer))
 				goto done;
@@ -82,10 +83,10 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 		}
     }
 	
-	
 done:
-if(xmloutputBuf != NULL)
-	xmlFree(xmloutputBuf);
+
+if(xmlNodePath != NULL)
+	xmlFree(xmlNodePath);
 if (transfer != NULL)
 	DisposeHandle(transfer);
 if (attrVal != NULL)
@@ -97,7 +98,8 @@ int
 XMLlistAttr(XMLlistAttrStruct *p){
 	//the error code
 	int err = 0;
-	
+	p->returnval = 0;
+
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;

@@ -16,13 +16,14 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
     int err = 0;
 	int size,bufsize;
     int i;
-	xmlChar* xmloutputBuf = (xmlChar*)("");
+	xmlChar *xmloutputBuf = NULL;
+	xmlChar *nothing = (xmlChar*)("");
 	char *space = " ";
 	
 	size = (nodes) ? nodes->nodeNr : 0;
     
 	if(size == 0){
-		if(err = PtrAndHand(xmloutputBuf,output,sizeof(xmloutputBuf)))
+		if(err = PtrAndHand(nothing,output,sizeof(nothing)))
 			goto done;
 	}
 	
