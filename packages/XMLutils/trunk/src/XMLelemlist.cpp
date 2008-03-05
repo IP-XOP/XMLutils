@@ -40,19 +40,20 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	//XPath in 1st column
 	//Namesoace in 2nd column
 	//attribute names and properties in 3rd column
+	//element name in 4th column
 			
     for (cur_node = a_node; cur_node ; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
+			//put XPATH in col 0
 			pathName = NewHandle(0);
 			if(err =MemError())
 				goto done;
 			path = xmlGetNodePath(cur_node);
-		
 			if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
 				return err;
 		
 			dimensionSizes[0] = dimensionSizes[0]+1; 
-			dimensionSizes[1] = 3;     
+			dimensionSizes[1] = 4;     
 			dimensionSizes[2] = 0;    
 			
 			if(err = MDChangeWave(textWav,-1,dimensionSizes))
@@ -68,7 +69,18 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			}
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 				goto done;
+			
+			//put name in 4th col
+			SetHandleSize(pathName , 0);
+			if(MemError())
+				goto done;				
+			if(err = PutCStringInHandle((char*)cur_node->name,pathName))
+				goto done;			
+			indices[1] = 3;
+			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+				goto done;
 
+			//put namespace in col1
 			if(cur_node->ns != NULL && cur_node->ns->href != NULL){
 				SetHandleSize(pathName , 0);
 				if(MemError())
@@ -90,6 +102,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(err = MemError())
 				goto done;
 			
+			//put properties and attributes in 3rd col
 			for(properties = cur_node->properties ; properties != NULL ; properties = properties->next){
 				attrName = (xmlChar*) properties->name;
 				if(err = PtrAndHand((char*)attrName,pathName,strlen((char*)attrName)))
@@ -128,11 +141,11 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 		if(path != NULL){
 			xmlFree(path);
 			path = NULL;
-			}
+		}
 		if(pathName != NULL){
 			DisposeHandle(pathName);
 			pathName = NULL;
-			}	
+		}	
 	}
 done:
 if(pathName != NULL)
