@@ -98,7 +98,6 @@ int
 XMLlistAttr(XMLlistAttrStruct *p){
 	//the error code
 	int err = 0;
-	p->returnval = 0;
 
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	xmlXPathObject *xpathObj = NULL; 
@@ -137,6 +136,7 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLlistAttr: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -149,9 +149,17 @@ XMLlistAttr(XMLlistAttrStruct *p){
 		goto done;
 	//and print it out to a handle
 	print_attr(doc, xpathObj->nodesetval);
-	
-	p->returnval = err;
-done: 
+
+done:
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
+	 
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)

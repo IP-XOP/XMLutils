@@ -120,6 +120,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLstrfmXPath: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -131,10 +132,17 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	if(err)
 		goto done;
 	//and print it out to a handle
-	print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
+	err = print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
 	
 	p->returnString = output;
 done:
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)

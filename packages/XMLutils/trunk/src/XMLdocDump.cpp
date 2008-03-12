@@ -28,6 +28,7 @@ XMLdocDump(XMLdocDumpStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLdocdump: fileID isn't valid");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -56,6 +57,13 @@ done:
 	/*
      * Free associated memory.
      */
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+
+	if(err == FILEID_DOESNT_EXIST){
+		err = 0;
+		p->retval = -1;
+	}
+	
     if(xmlbuff != NULL)
 		xmlFree(xmlbuff);
 

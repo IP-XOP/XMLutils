@@ -209,6 +209,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLaddNode: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -225,7 +226,15 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 		
 done:
-	p->retval = err;
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
+	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)
@@ -306,6 +315,7 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLdelNode: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -322,7 +332,14 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		goto done;
 		
 done:
-	p->retval = err;
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)

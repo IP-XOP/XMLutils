@@ -51,6 +51,15 @@ XMLopenFile(XMLopenFileStruct *p){
 	if (err = GetNativePath(fullFilePath,nativePath))
 		goto done;
 	
+
+	//if the file doesn't point to anything return an error, this is so programmatic aborts are less likely to happen
+//	if(FullPathPointsToFile(nativePath) == 0){
+//		err = 0;
+//		p->retval = -2;
+//		XOPNotice("XMLopenfile: File(path) to open doesn't exist\r");
+//		goto done;
+//	}
+	
 	//convert native Mac path to UNIX
 	#ifdef _MACINTOSH_
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
@@ -59,11 +68,25 @@ XMLopenFile(XMLopenFileStruct *p){
 	if(isMAC)
 		strcpy(nativePath, unixpath);
 	#endif
+	
+	FILE *fp = fopen(nativePath,"r");
+	if( fp ) {
+	// exists
+		fclose(fp);
+	} else {
+		err = 0;
+		p->retval = -2;
+		XOPNotice("XMLopenfile: File(path) to open doesn't exist, or file can't be opened\r");
+		goto done;
+	// doesnt exist, at least not for reading
+	}
 		
 	/* Load XML document */
     doc = xmlParseFile(nativePath);
     if (doc == NULL) {
-		err = XMLDOC_PARSE_ERROR;
+		err = 0;
+		p->retval = -1;
+		XOPNotice("XMLopenfile: XML file was not parseable\r");
 		goto done;
     }
 	
@@ -83,8 +106,10 @@ XMLopenFile(XMLopenFileStruct *p){
 //	}
 	
 	
-	if(err = XOPOpenFile(nativePath,0,&fileRef))
+	if(err = XOPOpenFile(nativePath,0,&fileRef)){
+		XOPNotice("XMLopenfile: Couldn't open file\r");
 		goto done;
+	}	
 	
 	strcpy(openfile.fileNameStr,nativePath);
 	openfile.fileRef = fileRef;
@@ -103,7 +128,7 @@ done:
 			err2 = XOPCloseFile(fileRef);
 	}
 	if(err)
-		p->retval = -1;
+		p->retval = -2;
 	
 //	if(ctxt != NULL)
 //		xmlFreeValidCtxt(ctxt);
@@ -123,6 +148,9 @@ XMLcloseFile(XMLcloseFileStruct *p){
 	igorXMLfile tmp;
 		
 	fileID = (int)(roundf(p->fileID));
+	
+	xmlIndentTreeOutput = 1;
+	
 	switch(fileID){
 		case -1:
 			for(allXMLfiles_iter = allXMLfiles.begin() ; allXMLfiles_iter != allXMLfiles.end() ; allXMLfiles_iter ++){
@@ -132,7 +160,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 					if(err = XOPCloseFile(tmp.fileRef))
 						goto done;
 					
-					if(xmlSaveFile(tmp.fileNameStr , (tmp.doc)) == -1){
+					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
 						err = XML_COULDNT_SAVE;
 						goto done;
 					}
@@ -140,7 +168,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 					allXMLfiles.erase(p->fileID);
 				} else {
 					xmlFreeDoc((tmp.doc));
-					if(err = XOPCloseFile(tmp.fileRef));
+					err = XOPCloseFile(tmp.fileRef);
 					allXMLfiles.erase(p->fileID);
 				}
 			}
@@ -150,7 +178,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 				if(p->toSave){
 					if(err = XOPCloseFile((allXMLfiles[p->fileID].fileRef)))
 						goto done;
-					if(xmlSaveFile(allXMLfiles[p->fileID].fileNameStr , (allXMLfiles[p->fileID].doc)) == -1){
+					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
 						err = XML_COULDNT_SAVE;
 						goto done;
 					}
@@ -165,6 +193,8 @@ XMLcloseFile(XMLcloseFileStruct *p){
 			}
 		}
 done:
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+
 	return err;
 }
 
@@ -180,6 +210,7 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLsavefile: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -196,6 +227,7 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 	}
 	
 done:
+	(err == 0)? (p->retval = 0):(p->retval = -1);
 	return err;
 }
 
@@ -222,8 +254,8 @@ extern int nextFileID;
 p->fileID = -1;
 
 if(p->rootelement == NULL || p->ns == NULL){
-		err = NULL_STRING_HANDLE;
-		goto done;
+	err = NULL_STRING_HANDLE;
+	goto done;
 }
 
 //allocate space for the C-strings.
@@ -266,7 +298,6 @@ if(isMAC)
 doc = xmlNewDoc(BAD_CAST "1.0");
 if(doc == NULL){
 	err = COULDNT_CREATE_XMLDOC;
-	p->fileID = -1;
 	goto done;
 }
 
@@ -281,7 +312,6 @@ if(xmlValidateName(BAD_CAST rootname , 0) != 0){
 root_element=xmlNewNode(NULL , BAD_CAST rootname);
 if(root_element == NULL){
 	err = COULDNT_CREATE_NODE;
-	p->fileID = -1;
 	goto done;
 }
 
@@ -309,8 +339,9 @@ openfile.fileRef = fileRef;
 allXMLfiles[nextFileID] = openfile;
 p->fileID = nextFileID;
 
-done:
+done:		
 if(err){
+	p->fileID = -1;
 	if(doc != NULL)
 		xmlFreeDoc(doc);
 	if(nspace != NULL)

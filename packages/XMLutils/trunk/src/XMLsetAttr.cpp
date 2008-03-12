@@ -68,7 +68,6 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	char *value = NULL;
 	//size of handles
 	int sizexPath,sizens,sizeattribute,sizevalue;
-
 			
 	if(p->xPath == NULL || p->ns == NULL || p->attribute == NULL || p->val == NULL){
 		err = NULL_STRING_HANDLE;
@@ -116,6 +115,7 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLsetAttr: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -129,8 +129,16 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		
 	set_attr(doc, xpathObj->nodesetval,attribute,value);
 	
-	p->returnval = err;
 done:
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
+	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)

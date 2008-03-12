@@ -121,6 +121,7 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 
 	fileID = (int)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
+		XOPNotice("XMLsetNodeStr: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
@@ -137,7 +138,15 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 		goto done;
 			
 done:
-	p->retval = err;
+	(err == 0)? (p->retval = 0):(p->retval = -1);
+
+	if(err == FILEID_DOESNT_EXIST ||
+		err == XPATH_CONTEXT_CREATION_ERROR ||
+		 err == FAILED_TO_REGISTER_NAMESPACE ||
+		  err == XPATH_COMPILE_ERROR ||
+		   err == UNABLE_TO_EVAL_XPATH_EXPR){
+		err = 0;
+	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(xPath != NULL)
