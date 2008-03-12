@@ -92,7 +92,7 @@ typedef struct XMLlistAttrStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
 	DOUBLE fileID;					//fileID
-	DOUBLE returnval;					//retval
+	DOUBLE retval;					//retval
 }XMLlistAttrStruct, *XMLlistAttrStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLlistAttr(XMLlistAttrStructPtr p);
@@ -105,7 +105,7 @@ typedef struct XMLsetAttrStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
 	DOUBLE fileID;					//fileID
-	DOUBLE returnval;					//retval
+	DOUBLE retval;					//retval
 }XMLsetAttrStruct, *XMLsetAttrStructPtr;
 #include "XOPStructureAlignmentReset.h"
 int XMLsetAttr(XMLsetAttrStructPtr p);

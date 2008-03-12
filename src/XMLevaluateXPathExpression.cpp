@@ -130,6 +130,8 @@ execute_xpath_expression(xmlDoc *doc, xmlChar* xpathExpr, xmlChar* nsList, int *
     }
 
 done:
+	if(*err)
+		XOPNotice("XMLutils: Failure with XPath expression\r");
     /* Cleanup */
 	if(comp != NULL)
 		xmlXPathFreeCompExpr(comp);

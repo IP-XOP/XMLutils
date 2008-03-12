@@ -17,7 +17,7 @@ resource 'STR#' (1100) {					/* custom error messages */
 	//[1]
 	"XMLutils requires Igor Pro 5.04 or later.",
 	//[2]
-	"Error while parsing XML document.",
+	"Error while parsing XML document",
 	//[3]
 	"Unable to create new XPath context.",
 	//[4]
@@ -40,7 +40,10 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Could not create a Node at the specified place.",
 	//[13]
 	"Node name is not valid - cannot contain spaces, <, >, &, ;.",
-
+	//[14]
+	"Failed to allocate XML parser context",
+	//[15]
+	"XML document not validated",
 	}
 };
 

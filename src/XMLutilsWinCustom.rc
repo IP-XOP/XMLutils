@@ -34,6 +34,10 @@ BEGIN
 	"Could not create a Node at the specified place.\0",
 	//[13]
 	"Node name is not valid - cannot contain spaces, <, >, &, ;.\0",
+	//[14]
+	"Failed to allocate XML parser context.\0",
+	//[15]
+	"XML document not validated.\0",
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
