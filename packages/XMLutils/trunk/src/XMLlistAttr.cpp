@@ -148,8 +148,8 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	if(err)
 		goto done;
 	//and print it out to a handle
-	print_attr(doc, xpathObj->nodesetval);
-
+	err = print_attr(doc, xpathObj->nodesetval);
+	
 done:
 	(err == 0)? (p->retval = 0):(p->retval = -1);
 	if(err == FILEID_DOESNT_EXIST ||

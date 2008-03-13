@@ -247,6 +247,7 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	if(err)
 		goto done;
 	
+
 	if(err = outputXPathObjIntoWave(doc, xpathObj, options))
 		goto done;
 		

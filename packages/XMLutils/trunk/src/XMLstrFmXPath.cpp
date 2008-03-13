@@ -133,6 +133,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 		goto done;
 	//and print it out to a handle
 	err = print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
+
 	
 	p->returnString = output;
 done:

@@ -25,6 +25,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	long dimensionSizes[MAX_DIMENSIONS+1];
 	long numDimensions = 0;
 	long indices[MAX_DIMENSIONS+1];
+	int size = 0;
 	
 	Handle pathName = NULL;
 
@@ -38,9 +39,11 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	if(err = MDMakeWave(&textWav,textWavName,NULL,dimensionSizes,type,overwrite))
 		goto done;
 
+	size = (nodesetval) ? nodesetval->nodeNr : 0;
+ 
 	//XPathNames in 1st column
 			
-    for (ii = 0; ii < nodesetval->nodeNr ; ii+=1) {
+    for (ii = 0; ii < size ; ii+=1) {
 	
 			path = xmlGetNodePath(nodesetval->nodeTab[ii]);
 		
@@ -127,7 +130,8 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 		goto done;
 	//and print it out to a handle
 	if(err = fill_xpath_list(xpathObj->nodesetval))
-		goto done;
+			goto done;
+
 	
 done:
 	(err == 0)? (p->retval = 0):(p->retval = -1);
