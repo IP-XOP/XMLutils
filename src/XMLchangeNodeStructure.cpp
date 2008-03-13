@@ -47,6 +47,7 @@ if(xpathObj->nodesetval->nodeTab[0] != NULL){
 }
 	
 /* work out how many nodes in the nodeset from the Xpath object */
+
 numNodes = (xpathObj->nodesetval) ? xpathObj->nodesetval->nodeNr : 0;
 
 for(j = 0; j < numNodes; ++j) {
@@ -221,7 +222,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath, (xmlChar*) ns, &err); 
 	if(err)
 		goto done;
-	
+
 	if(err = add_nodes(xpathObj,BAD_CAST nodeName, BAD_CAST ns, nodeType, BAD_CAST content))
 		goto done;
 		

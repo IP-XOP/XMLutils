@@ -126,8 +126,9 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
 	if(err)
 		goto done;
-		
-	set_attr(doc, xpathObj->nodesetval,attribute,value);
+	
+	if(err =set_attr(doc, xpathObj->nodesetval,attribute,value))
+		goto done;
 	
 done:
 	(err == 0)? (p->retval = 0):(p->retval = -1);
