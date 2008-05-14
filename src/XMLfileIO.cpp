@@ -164,10 +164,12 @@ XMLcloseFile(XMLcloseFileStruct *p){
 						err = XML_COULDNT_SAVE;
 						goto done;
 					}
-					xmlFreeDoc((tmp.doc));
+					if(tmp.doc)
+						xmlFreeDoc((tmp.doc));
 					allXMLfiles.erase(p->fileID);
 				} else {
-					xmlFreeDoc((tmp.doc));
+					if(tmp.doc)
+						xmlFreeDoc((tmp.doc));
 					err = XOPCloseFile(tmp.fileRef);
 					allXMLfiles.erase(p->fileID);
 				}

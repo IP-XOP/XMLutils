@@ -19,7 +19,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 
 	//textwave to put element list in
 	waveHndl textWav = NULL;
-	char *textWavName = "W_listXPath";
+	char *textWavName = "M_listXPath";
 	int overwrite = 1;		//wave will always be overwritten
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
 	long dimensionSizes[MAX_DIMENSIONS+1];
@@ -34,7 +34,10 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	pathName = NewHandle(0);
 	if(err =MemError())
 		goto done;
-		
+	
+	//now 2D
+	dimensionSizes[1] = 2;
+	
 	//need to make a textwave to contain the elements
 	if(err = MDMakeWave(&textWav,textWavName,NULL,dimensionSizes,type,overwrite))
 		goto done;
@@ -51,16 +54,26 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 				return err;
 		
 			dimensionSizes[0] = dimensionSizes[0]+1; 
+			dimensionSizes[1] = 2;
+			
 			if(err = MDChangeWave(textWav,-1,dimensionSizes))
 				goto done;
 			
 			if(err = PutCStringInHandle((char*)path,pathName))
 				goto done;
 			indices[0] = dimensionSizes[0]-1;
+			indices[1] = 0;
+			
 			if(path != NULL){
 				xmlFree(path);
 				path = NULL;
 			}
+			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+				goto done;
+			
+			if(err = PutCStringInHandle((char*)(nodesetval->nodeTab[ii]->name),pathName))
+				goto done;
+			indices[1] = 1;
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 				goto done;
 			
