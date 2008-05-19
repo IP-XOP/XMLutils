@@ -22,10 +22,10 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 	
 	size = (nodes) ? nodes->nodeNr : 0;
     
-	if(size == 0){
-		if(err = PtrAndHand(nothing,output,sizeof(nothing)))
-			goto done;
-	}
+//	if(size == 0){
+//		if(err = PtrAndHand(nothing,output,sizeof(nothing)))
+//			goto done;
+//	}
 	
 	for(i = 0; i < size; ++i) {
 		switch(nodes->nodeTab[i]->type){
