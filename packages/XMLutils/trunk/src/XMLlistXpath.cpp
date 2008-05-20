@@ -36,7 +36,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 		goto done;
 	
 	//now 2D
-	dimensionSizes[1] = 2;
+	dimensionSizes[1] = 3;
 	
 	//need to make a textwave to contain the elements
 	if(err = MDMakeWave(&textWav,textWavName,NULL,dimensionSizes,type,overwrite))
@@ -45,7 +45,9 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	size = (nodesetval) ? nodesetval->nodeNr : 0;
  
 	//XPathNames in 1st column
-			
+	//namespace  in 2nd column
+	//nodeNames in 3rd column
+					
     for (ii = 0; ii < size ; ii+=1) {
 	
 			path = xmlGetNodePath(nodesetval->nodeTab[ii]);
@@ -54,7 +56,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 				return err;
 		
 			dimensionSizes[0] = dimensionSizes[0]+1; 
-			dimensionSizes[1] = 2;
+			dimensionSizes[1] = 3;
 			
 			if(err = MDChangeWave(textWav,-1,dimensionSizes))
 				goto done;
@@ -70,13 +72,33 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 			}
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 				goto done;
+
+
+			SetHandleSize(pathName , 0);
+			if(MemError())
+				goto done;
+					
+			if(nodesetval->nodeTab[ii]->ns != NULL && nodesetval->nodeTab[ii]->ns->href != NULL){
+				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix)>0){
+					if(err = PtrAndHand((char*)nodesetval->nodeTab[ii]->ns->prefix,pathName,strlen((char*)nodesetval->nodeTab[ii]->ns->prefix)))
+						goto done;
+					if(err = PtrAndHand((char*)"=",pathName,strlen((char*)"=")))
+						goto done;
+				}
+				if(err = PtrAndHand((char*)nodesetval->nodeTab[ii]->ns->href,pathName,strlen((char*)nodesetval->nodeTab[ii]->ns->href)))
+					goto done;					
+				indices[1] = 1;
+				if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+					goto done;
+			}
 			
+
 			if(err = PutCStringInHandle((char*)(nodesetval->nodeTab[ii]->name),pathName))
 				goto done;
-			indices[1] = 1;
+			indices[1] = 2;
 			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
 				goto done;
-			
+
 		}
 
 done:
