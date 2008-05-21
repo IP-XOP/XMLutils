@@ -20,6 +20,16 @@
 
 #define LIBXML_STATIC
 
+/**
+*TO DO:
+*Get rid of this bodge in the XPath when libxml2 is compileable again
+*/
+#ifdef _WINDOWS_
+#define snprintf _snprintf
+#endif
+xmlChar* ARJNxmlGetNodePath(xmlNodePtr node);
+
+
 /* A structure to hold all the file IO information */
 typedef struct igorXMLfile {
 	XOP_FILE_REF fileRef;
