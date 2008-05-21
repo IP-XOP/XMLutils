@@ -145,7 +145,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 	XOP_FILE_REF tmpfileref;
 	extern std::map<int,igorXMLfile> allXMLfiles;
 	std::map<int,igorXMLfile>::iterator allXMLfiles_iter;
-	igorXMLfile tmp=NULL;
+	igorXMLfile tmp;
 		
 	fileID = (int)(roundf(p->fileID));
 	
