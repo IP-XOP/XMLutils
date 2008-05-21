@@ -50,7 +50,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 					
     for (ii = 0; ii < size ; ii+=1) {
 	
-			path = xmlGetNodePath(nodesetval->nodeTab[ii]);
+			path = ARJNxmlGetNodePath(nodesetval->nodeTab[ii]);
 		
 			if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
 				return err;
