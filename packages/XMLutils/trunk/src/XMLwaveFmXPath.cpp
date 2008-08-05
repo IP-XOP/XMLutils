@@ -187,12 +187,12 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	//the error code
 	int err = 0;
 	
-	extern std::map<int,igorXMLfile> allXMLfiles;
+	extern std::map<long,igorXMLfile> allXMLfiles;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
 	//the fileID, Xpath handle,namespace handle,options handle
-	int fileID = -1;
+	long fileID = -1;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *options = NULL;
@@ -232,7 +232,7 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	if (err = GetCStringFromHandle(p->options, options, sizeoptions))
 		goto done;
 
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLwavefmXPath: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;

@@ -74,8 +74,8 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	//the error code
 	int err = 0;
 	
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	int fileID = -1;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	long fileID = -1;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
@@ -119,7 +119,7 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	if (err = GetCStringFromHandle(p->content, content, sizecontent))
 		goto done;
 
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLsetNodeStr: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;

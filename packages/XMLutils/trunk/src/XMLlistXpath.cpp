@@ -115,8 +115,8 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	//the error code
 	int err = 0;
 	
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	int fileID = -1;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	long fileID = -1;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
 
@@ -150,7 +150,7 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
 		goto done;
 		
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLlistXpath: FileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
