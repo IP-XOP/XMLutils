@@ -41,8 +41,8 @@ XMLopenFile(XMLopenFileStruct *p){
 	igorXMLfile openfile;
 	xmlDoc *doc = NULL;
 //	xmlValidCtxt *ctxt = NULL;
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	extern int nextFileID;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	extern long nextFileID;
 	
 	
 	if(err = GetCStringFromHandle(p->fullFilePath,fullFilePath,MAX_PATH_LEN))
@@ -143,11 +143,11 @@ XMLcloseFile(XMLcloseFileStruct *p){
 	int err = 0;
 	int fileID;
 	XOP_FILE_REF tmpfileref;
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	std::map<int,igorXMLfile>::iterator allXMLfiles_iter;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	std::map<long,igorXMLfile>::iterator allXMLfiles_iter;
 	igorXMLfile tmp;
 		
-	fileID = (int)(roundf(p->fileID));
+	fileID = (long)(roundf(p->fileID));
 	
 	xmlIndentTreeOutput = 1;
 	
@@ -204,13 +204,13 @@ done:
 int
 XMLSAVEFILE(XMLfileSaveStruct *p){
 	int err = 0;
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	int fileID = -1;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	long fileID = -1;
 	xmlDoc *doc = NULL;
 	
 	char* fileName;
 	
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLsavefile: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;
@@ -250,8 +250,8 @@ char *rootname   = NULL;
 char *ns = NULL;
 char *prefix = NULL;
 
-extern std::map<int,igorXMLfile> allXMLfiles;
-extern int nextFileID;
+extern std::map<long,igorXMLfile> allXMLfiles;
+extern long nextFileID;
 
 p->fileID = -1;
 

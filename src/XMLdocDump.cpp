@@ -14,8 +14,8 @@ using namespace std;
 int
 XMLdocDump(XMLdocDumpStruct *p){
 	int err = 0;
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	int fileID = -1;
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	long fileID = -1;
 	xmlDoc *doc = NULL;
 	
 	int buffersize = 0;
@@ -26,7 +26,7 @@ XMLdocDump(XMLdocDumpStruct *p){
 	size_t found;
 	long message;
 	
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLdocdump: fileID isn't valid");
 		err = FILEID_DOESNT_EXIST;

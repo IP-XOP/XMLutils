@@ -146,12 +146,12 @@ int XMLaddNode(XMLaddNodeStruct *p){
 //the error code
 	int err = 0;
 	
-	extern std::map<int,igorXMLfile> allXMLfiles;
+	extern std::map<long,igorXMLfile> allXMLfiles;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
 	//the fileID, Xpath handle,namespace handle,options handle
-	int fileID = -1;
+	long fileID = -1;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	char *nodeName = NULL;
@@ -208,7 +208,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		
 	nodeType = (int)roundf(p->nodeType);
 	
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLaddNode: fileID doesn't exist\r");
 		err = FILEID_DOESNT_EXIST;
@@ -277,12 +277,12 @@ int XMLdelNode(XMLdelNodeStruct *p){
 //the error code
 	int err = 0;
 	
-	extern std::map<int,igorXMLfile> allXMLfiles;
+	extern std::map<long,igorXMLfile> allXMLfiles;
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
 	//the fileID, Xpath handle,namespace handle,options handle
-	int fileID = -1;
+	long fileID = -1;
 	char *xPath = NULL;
 	char *ns    = NULL;
 	//size of handles
@@ -314,7 +314,7 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	if (err = GetCStringFromHandle(p->ns, ns, sizens))
 		goto done;
 	
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLdelNode: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;

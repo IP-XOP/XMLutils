@@ -393,8 +393,8 @@ XMLelemlist(XMLelemlistStructPtr p){
 	int err = 0;
 	
 	xmlDoc *doc = NULL;
-	extern std::map<int,igorXMLfile> allXMLfiles;
-	int fileID = -1;	
+	extern std::map<long,igorXMLfile> allXMLfiles;
+	long fileID = -1;	
 	//xmldoc root element
     xmlNode *root_element = NULL;
 
@@ -406,7 +406,7 @@ XMLelemlist(XMLelemlistStructPtr p){
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
 
-	fileID = (int)roundf(p->fileID);	
+	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLelemlist: fileID isn't valid\r");
 		err = FILEID_DOESNT_EXIST;
