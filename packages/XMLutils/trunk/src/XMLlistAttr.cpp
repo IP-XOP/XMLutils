@@ -119,11 +119,11 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	sizens = GetHandleSize(p->ns);
 	
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((1+sizexPath)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((sizens+1)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}
@@ -140,7 +140,7 @@ XMLlistAttr(XMLlistAttrStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
 	
 	//execute Xpath expression

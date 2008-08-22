@@ -41,9 +41,7 @@ XMLopenFile(XMLopenFileStruct *p){
 	igorXMLfile openfile;
 	xmlDoc *doc = NULL;
 //	xmlValidCtxt *ctxt = NULL;
-	extern std::map<long,igorXMLfile> allXMLfiles;
-	extern long nextFileID;
-	
+	extern std::map<long,igorXMLfile> allXMLfiles;	
 	
 	if(err = GetCStringFromHandle(p->fullFilePath,fullFilePath,MAX_PATH_LEN))
 		goto done;
@@ -114,12 +112,11 @@ XMLopenFile(XMLopenFileStruct *p){
 	strcpy(openfile.fileNameStr,nativePath);
 	openfile.fileRef = fileRef;
 	openfile.doc = doc;
-	allXMLfiles[nextFileID] = openfile;
-	p->retval = nextFileID;
+	allXMLfiles[fileno(fileRef)] = openfile;
+	p->retval = fileno(fileRef);
 	
-	nextFileID += 1;
 	
-done:
+	done:
 	if(err)
 		if(doc!= NULL)
 			xmlFreeDoc(doc);
@@ -141,7 +138,7 @@ done:
 int
 XMLcloseFile(XMLcloseFileStruct *p){
 	int err = 0;
-	int fileID;
+	long fileID;
 	XOP_FILE_REF tmpfileref;
 	extern std::map<long,igorXMLfile> allXMLfiles;
 	std::map<long,igorXMLfile>::iterator allXMLfiles_iter;
@@ -157,40 +154,54 @@ XMLcloseFile(XMLcloseFileStruct *p){
 				tmp = (*allXMLfiles_iter).second;
 				
 				if(p->toSave){
-					if(err = XOPCloseFile(tmp.fileRef))
-						goto done;
-					
-					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+					rewind(allXMLfiles[fileID].fileRef);
+					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,1) == -1){
 						err = XML_COULDNT_SAVE;
 						goto done;
 					}
+					
+					if(err = XOPCloseFile(tmp.fileRef))
+						goto done;
+					
+//					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+//						err = XML_COULDNT_SAVE;
+//						goto done;
+//					}
 					if(tmp.doc)
 						xmlFreeDoc((tmp.doc));
-					allXMLfiles.erase(p->fileID);
+					allXMLfiles.erase(allXMLfiles_iter->first);
 				} else {
 					if(tmp.doc)
 						xmlFreeDoc((tmp.doc));
 					err = XOPCloseFile(tmp.fileRef);
-					allXMLfiles.erase(p->fileID);
+					allXMLfiles.erase(allXMLfiles_iter->first);
 				}
 			}
 			break;
 		default:
-			if(allXMLfiles.find(p->fileID) != allXMLfiles.end()){
+			if(allXMLfiles.find(fileID) != allXMLfiles.end()){
 				if(p->toSave){
-					if(err = XOPCloseFile((allXMLfiles[p->fileID].fileRef)))
-						goto done;
-					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+					tmp = allXMLfiles[fileID];
+
+					rewind(allXMLfiles[fileID].fileRef);
+					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,1) == -1){
 						err = XML_COULDNT_SAVE;
 						goto done;
 					}
-					xmlFreeDoc( (allXMLfiles[p->fileID].doc) );
-					allXMLfiles.erase(p->fileID);
+
+					if(err = XOPCloseFile((allXMLfiles[fileID].fileRef)))
+						goto done;
+//					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+//						err = XML_COULDNT_SAVE;
+//						goto done;
+//					}
+					xmlFreeDoc( (allXMLfiles[fileID].doc) );
+					allXMLfiles.erase(fileID);
 				} else {
-					xmlFreeDoc((allXMLfiles[p->fileID].doc));
-					tmpfileref = allXMLfiles[p->fileID].fileRef;
+					xmlFreeDoc((allXMLfiles[fileID].doc));
+					tmpfileref = allXMLfiles[fileID].fileRef;
 					if(err = XOPCloseFile(tmpfileref));
-					allXMLfiles.erase(p->fileID);
+					allXMLfiles.erase(fileID);
 				}
 			}
 		}
@@ -222,11 +233,17 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 
 	xmlIndentTreeOutput = 1;
 	
-	if(xmlSaveFormatFileEnc(allXMLfiles[p->fileID].fileNameStr , doc , NULL , 1) == -1){
-//	if(xmlSaveFile(allXMLfiles[p->fileID].fileNameStr , doc) == -1){
+	rewind(allXMLfiles[fileID].fileRef);
+	if(xmlDocFormatDump(allXMLfiles[fileID].fileRef,allXMLfiles[fileID].doc,1) == -1){
 		err = XML_COULDNT_SAVE;
 		goto done;
 	}
+
+//	if(xmlSaveFormatFileEnc(allXMLfiles[fileID].fileNameStr , doc , NULL , 1) == -1){
+//	if(xmlSaveFile(allXMLfiles[p->fileID].fileNameStr , doc) == -1){
+//		err = XML_COULDNT_SAVE;
+//		goto done;
+//	}
 	
 done:
 	(err == 0)? (p->retval = 0):(p->retval = -1);
@@ -251,7 +268,6 @@ char *ns = NULL;
 char *prefix = NULL;
 
 extern std::map<long,igorXMLfile> allXMLfiles;
-extern long nextFileID;
 
 p->fileID = -1;
 
@@ -261,15 +277,15 @@ if(p->rootelement == NULL || p->ns == NULL){
 }
 
 //allocate space for the C-strings.
-rootname = (char*)malloc(GetHandleSize(p->rootelement)*sizeof(char)+1);
+rootname = (char*)malloc((GetHandleSize(p->rootelement)+1)*sizeof(char));
 if(rootname == NULL){
 	err = NOMEM;goto done;
 }
-ns = (char*)malloc(GetHandleSize(p->ns)*sizeof(char)+1);
+ns = (char*)malloc((GetHandleSize(p->ns)+1)*sizeof(char));
 if(ns == NULL){
 	err = NOMEM;goto done;
 }
-prefix = (char*)malloc(GetHandleSize(p->prefix)*sizeof(char)+1);
+prefix = (char*)malloc((GetHandleSize(p->prefix)+1)*sizeof(char));
 if(prefix == NULL){
 	err = NOMEM;goto done;
 }
@@ -338,8 +354,8 @@ strcpy(openfile.fileNameStr,nativePath);
 openfile.doc = doc;
 openfile.fileRef = fileRef;
 
-allXMLfiles[nextFileID] = openfile;
-p->fileID = nextFileID;
+allXMLfiles[fileno(fileRef)] = openfile;
+p->fileID = fileno(fileRef);
 
 done:		
 if(err){

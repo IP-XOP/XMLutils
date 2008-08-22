@@ -25,7 +25,7 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
     int i;
 	xmlChar *encValue = NULL;
 	
-	if(nodes->nodeTab[0] != NULL){
+	if(nodes->nodeTab && nodes->nodeTab[0]!= NULL){
 		encValue = xmlEncodeEntitiesReentrant(nodes->nodeTab[0]->doc, value);
 	}
     size = (nodes) ? nodes->nodeNr : 0;
@@ -98,15 +98,15 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	sizecontent = GetHandleSize(p->content);
 	
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((sizens+1)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}
-	content = (char*)malloc(sizecontent*sizeof(char)+1);
+	content = (char*)malloc((sizecontent+1)*sizeof(char));
 	if(content == NULL){
 		err = NOMEM;goto done;
 	}
@@ -125,7 +125,7 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
 	
 	//execute Xpath expression

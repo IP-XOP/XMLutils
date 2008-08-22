@@ -80,19 +80,19 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	sizevalue = GetHandleSize(p->val);
 	
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((sizens+1)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}
-	attribute = (char*)malloc(sizeattribute*sizeof(char)+1);
+	attribute = (char*)malloc((1+sizeattribute)*sizeof(char));
 	if(attribute == NULL){
 		err = NOMEM;goto done;
 	}	
-	value =  (char*)malloc(sizevalue*sizeof(char)+1);
+	value =  (char*)malloc((1+sizevalue)*sizeof(char));
 	if(value == NULL){
 		err = NOMEM;goto done;
 	}	
@@ -119,7 +119,7 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
 	
 	//execute Xpath expression
