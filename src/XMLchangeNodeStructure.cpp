@@ -42,7 +42,7 @@ xmlChar *encContent = NULL;
 xmlIndentTreeOutput = 1;
 					 
 //the content may have non-allowed XML characters, such as < or >, encode them
-if(xpathObj->nodesetval->nodeTab[0] != NULL){
+if(xpathObj->nodesetval->nodeTab && xpathObj->nodesetval->nodeTab[0] != NULL){
 	encContent = xmlEncodeEntitiesReentrant(xpathObj->nodesetval->nodeTab[0]->doc, content);
 }
 	
@@ -173,19 +173,19 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	sizecontent = GetHandleSize(p->content);
 	
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((sizens+1)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}
-	nodeName = (char*)malloc(sizenodeName*sizeof(char)+1);
+	nodeName = (char*)malloc((1+sizenodeName)*sizeof(char));
 	if(nodeName == NULL){
 		err = NOMEM;goto done;
 	}
-	content = (char*)malloc(sizecontent*sizeof(char)+1);
+	content = (char*)malloc((sizecontent+1)*sizeof(char));
 	if(content == NULL){
 		err = NOMEM;goto done;
 	}
@@ -214,7 +214,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
  
 	//execute Xpath expression
@@ -299,11 +299,11 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	sizens = GetHandleSize(p->ns);
 		
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((1+sizexPath)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((1+sizens)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}

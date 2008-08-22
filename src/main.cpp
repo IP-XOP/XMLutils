@@ -4,7 +4,6 @@ XMLutils - an XOP designed to work with XML files
 
 #include "XMLutils.h"
 
-long nextFileID = 1;
 std::map<long,igorXMLfile> allXMLfiles;
 
 #ifdef _MACINTOSH_

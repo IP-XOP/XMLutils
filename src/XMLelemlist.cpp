@@ -412,7 +412,7 @@ XMLelemlist(XMLelemlistStructPtr p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
 
 	/*Get the root element node */

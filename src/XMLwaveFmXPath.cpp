@@ -211,15 +211,15 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	sizeoptions = GetHandleSize(p->options);
 	
 	//allocate space for the C-strings.
-	xPath = (char*)malloc(sizexPath*sizeof(char)+1);
+	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
 	if(xPath == NULL){
 		err = NOMEM;goto done;
 	}
-	ns = (char*)malloc(sizens*sizeof(char)+1);
+	ns = (char*)malloc((sizens+1)*sizeof(char));
 	if(ns == NULL){
 		err = NOMEM;goto done;
 	}
-	options = (char*)malloc(sizeoptions*sizeof(char)+1);
+	options = (char*)malloc((sizeoptions+1)*sizeof(char));
 	if(options == NULL){
 		err = NOMEM;goto done;
 	}
@@ -238,7 +238,7 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[fileID].doc);
 	}
  
 	//execute Xpath expression
