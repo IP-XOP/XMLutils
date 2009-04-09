@@ -155,18 +155,18 @@ XMLcloseFile(XMLcloseFileStruct *p){
 				
 				if(p->toSave){
 					rewind(allXMLfiles[fileID].fileRef);
-					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,1) == -1){
-						err = XML_COULDNT_SAVE;
-						goto done;
-					}
+//					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,1) == -1){
+//						err = XML_COULDNT_SAVE;
+//						goto done;
+//					}
 					
 					if(err = XOPCloseFile(tmp.fileRef))
 						goto done;
 					
-//					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
-//						err = XML_COULDNT_SAVE;
-//						goto done;
-//					}
+					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+						err = XML_COULDNT_SAVE;
+						goto done;
+					}
 					if(tmp.doc)
 						xmlFreeDoc((tmp.doc));
 					allXMLfiles.erase(allXMLfiles_iter->first);
@@ -184,17 +184,17 @@ XMLcloseFile(XMLcloseFileStruct *p){
 					tmp = allXMLfiles[fileID];
 
 					rewind(allXMLfiles[fileID].fileRef);
-					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,1) == -1){
-						err = XML_COULDNT_SAVE;
-						goto done;
-					}
-
-					if(err = XOPCloseFile((allXMLfiles[fileID].fileRef)))
-						goto done;
-//					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+//					if(xmlDocFormatDump(tmp.fileRef,tmp.doc,0) == -1){
 //						err = XML_COULDNT_SAVE;
 //						goto done;
 //					}
+
+					if(err = XOPCloseFile((allXMLfiles[fileID].fileRef)))
+						goto done;
+					if(xmlSaveFormatFileEnc(tmp.fileNameStr , tmp.doc , NULL , 1) == -1){
+						err = XML_COULDNT_SAVE;
+						goto done;
+					}
 					xmlFreeDoc( (allXMLfiles[fileID].doc) );
 					allXMLfiles.erase(fileID);
 				} else {
@@ -234,16 +234,16 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 	xmlIndentTreeOutput = 1;
 	
 	rewind(allXMLfiles[fileID].fileRef);
-	if(xmlDocFormatDump(allXMLfiles[fileID].fileRef,allXMLfiles[fileID].doc,1) == -1){
-		err = XML_COULDNT_SAVE;
-		goto done;
-	}
-
-//	if(xmlSaveFormatFileEnc(allXMLfiles[fileID].fileNameStr , doc , NULL , 1) == -1){
-//	if(xmlSaveFile(allXMLfiles[p->fileID].fileNameStr , doc) == -1){
+//	if(xmlDocFormatDump(allXMLfiles[fileID].fileRef,allXMLfiles[fileID].doc,1) == -1){
 //		err = XML_COULDNT_SAVE;
 //		goto done;
 //	}
+
+	if(xmlSaveFormatFileEnc(allXMLfiles[fileID].fileNameStr , doc , NULL , 1) == -1){
+//	if(xmlSaveFile(allXMLfiles[p->fileID].fileNameStr , doc) == -1){
+		err = XML_COULDNT_SAVE;
+		goto done;
+	}
 	
 done:
 	(err == 0)? (p->retval = 0):(p->retval = -1);
