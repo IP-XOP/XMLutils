@@ -38,17 +38,16 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 				xmloutputBuf = xmlNodeGetContent(nodes->nodeTab[i]);//(doc, nodes->nodeTab[i], 1);
 				break;
 		}
-
-
+		
 		if(xmloutputBuf != NULL){
+			if(i){
+				bufsize = strlen(space);			
+				if(err = PtrAndHand(space,output,bufsize))
+					goto done;	
+			}
 			bufsize = strlen((char*)xmloutputBuf);
-			
 			if(err = PtrAndHand(xmloutputBuf,output,bufsize))
 				goto done;
-			bufsize = strlen(space);			
-			if(err = PtrAndHand(space,output,bufsize))
-				goto done;	
-		
 		}
 		
 	}
