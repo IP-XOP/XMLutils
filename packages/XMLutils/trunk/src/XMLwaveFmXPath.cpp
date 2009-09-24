@@ -97,6 +97,11 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		xmloutputBuf = xmlGetNodePath(xpathObj->nodesetval->nodeTab[j]);
 		if(err = PutCStringInHandle((char*)xmloutputBuf,transfer))
 			goto done;
+		
+		if(xmloutputBuf != NULL){
+			xmlFree(xmloutputBuf);
+			xmloutputBuf = NULL;
+		}
 		if(err = MDSetTextWavePointValue(NODEoutputWav,NODEindices,transfer))
 			goto done;
 					
@@ -123,7 +128,10 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		if(outputBuf == NULL){
 			err = NOMEM; goto done;
 		}
-
+		if(xmloutputBuf != NULL){
+			xmlFree(xmloutputBuf);
+			xmloutputBuf = NULL;
+		}
 			
 		/* tokenize the output */
 		ii=0;
