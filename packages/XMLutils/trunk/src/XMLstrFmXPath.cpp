@@ -133,8 +133,11 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	err = print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
 
 	
-	p->returnString = output;
 done:
+	p->returnString = NULL;
+	if(output)
+		p->returnString = output;
+	
 	if(err == FILEID_DOESNT_EXIST ||
 		err == XPATH_CONTEXT_CREATION_ERROR ||
 		 err == FAILED_TO_REGISTER_NAMESPACE ||
