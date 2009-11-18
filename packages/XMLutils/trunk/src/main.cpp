@@ -20,7 +20,7 @@ RegisterFunction()
 
 	funcIndex = GetXOPItem(0);			// Which function invoked ?
 	switch (funcIndex) {
-		case 0:							// y = Abeles(w,x) (curve fitting function).
+		case 0:							
 			return((long)XMLelemlist);	// This function is called using the direct method.
 			break;
 		case 1:
