@@ -44,12 +44,12 @@ typedef struct igorXMLfile {
 /*
 in XMLelementlist.cpp
 */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLelemlistStruct {
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLelemlistStruct, *XMLelemlistStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLelemlist(XMLelemlistStructPtr p);
 
 /* in XMLevaluateXPathExpression.cpp */
@@ -58,7 +58,7 @@ xmlXPathObject* execute_xpath_expression(xmlDoc* doc, xmlChar* xpathExpr, xmlCha
 /*
 in XMLstrFmXPath.cpp
 */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLstrFmXpathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
@@ -66,14 +66,14 @@ typedef struct XMLstrFmXpathStruct {
 	DOUBLE fileID;					//the fileID to load
 	Handle returnString;			//the string containing the content
 }XMLstrFmXpathStruct, *XMLstrFmXpathStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLstrFmXPath(XMLstrFmXpathStructPtr p);
 
 /*
 in XMLparsedWaveFromXPath.cpp
 */ 
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLWaveXPathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
@@ -81,11 +81,11 @@ typedef struct XMLWaveXPathStruct {
 	DOUBLE fileID;				//the filename to load
 	DOUBLE retval;					//retval
 }XMLWaveXPathStruct, *XMLWaveXPathStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLWaveFmXPath(XMLWaveXPathStructPtr);
 
 /* in XMLsetNodeStr */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLsetNodeStrStruct {
 	Handle content;					//an options string
 	Handle ns;						//a namespace to register
@@ -93,22 +93,22 @@ typedef struct XMLsetNodeStrStruct {
 	DOUBLE fileID;					//fileID
 	DOUBLE retval;					//retval
 }XMLsetNodeStrStruct, *XMLsetNodeStrStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
 
 /* in XMLlistAttr */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLlistAttrStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
 	DOUBLE fileID;					//fileID
 	DOUBLE retval;					//retval
 }XMLlistAttrStruct, *XMLlistAttrStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLlistAttr(XMLlistAttrStructPtr p);
 
 /* in XMLsetAttr */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLsetAttrStruct {
 	Handle val;
 	Handle attribute;
@@ -117,36 +117,36 @@ typedef struct XMLsetAttrStruct {
 	DOUBLE fileID;					//fileID
 	DOUBLE retval;					//retval
 }XMLsetAttrStruct, *XMLsetAttrStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLsetAttr(XMLsetAttrStructPtr p);
 
 /* in XMLfileIO.cpp */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLopenFileStruct {
 	Handle fullFilePath;
 	DOUBLE retval;
 }XMLopenFileStruct, *XMLopenFileStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLopenFile(XMLopenFileStruct *p);
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLcloseFileStruct {
 	DOUBLE toSave;
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLcloseFileStruct, *XMLcloseFileStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLcloseFile(XMLcloseFileStruct *p);
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLfileSaveStruct {
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLfileSaveStruct, *XMLfileSaveStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLSAVEFILE(XMLfileSaveStruct *p);
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLcreateFileStruct {
 	Handle prefix;
 	Handle ns;
@@ -154,11 +154,11 @@ typedef struct XMLcreateFileStruct {
 	Handle fileName;
 	DOUBLE fileID;
 }XMLcreateFileStruct, *XMLcreateFileStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLcreateFile(XMLcreateFileStruct *p);
 
 /* in XMLchangeNodeStructure.cpp */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLaddNodeStruct {
 	DOUBLE nodeType;
 	Handle content;
@@ -168,39 +168,39 @@ typedef struct XMLaddNodeStruct {
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLaddNodeStruct, *XMLaddNodeStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLaddNode(XMLaddNodeStruct *);
 
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLdelNodeStruct {
 	Handle ns;
 	Handle xPath;
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLdelNodeStruct, *XMLdelNodeStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLdelNode(XMLdelNodeStruct *);
 
 /*
 in XMLlistXPath.cpp
 */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLlistXpathStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
 	DOUBLE fileID;					//the fileID to load
 	DOUBLE retval;					//return value
 }XMLlistXpathStruct, *XMLlistXpathStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLlistXPath(XMLlistXpathStructPtr p);
 
 /*
 in XMLdumpDoc.cpp
 */
-#include "XOPStructureAlignmentTwoByte.h"	// All structures passed to Igor are two-byte aligned.
+#pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLdocDumpStruct {
 	DOUBLE fileID;
 	DOUBLE retval;
 }XMLdocDumpStruct, *XMLdocDumpStructPtr;
-#include "XOPStructureAlignmentReset.h"
+#pragma pack()
 int XMLdocDump(XMLdocDumpStruct *p);
