@@ -48,6 +48,8 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 			bufsize = strlen((char*)xmloutputBuf);
 			if(err = PtrAndHand(xmloutputBuf,output,bufsize))
 				goto done;
+			xmlFree(xmloutputBuf);
+			xmloutputBuf = NULL;
 		}
 		
 	}
