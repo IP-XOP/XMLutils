@@ -8,6 +8,10 @@
  */
 
 #include "XMLutils.h"
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
 
 static int
 fill_xpath_list(xmlNodeSet *nodesetval)
@@ -26,20 +30,20 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	long numDimensions = 0;
 	long indices[MAX_DIMENSIONS+1];
 	int size = 0;
-	
+	MemoryStruct data;
 	Handle pathName = NULL;
 
 	memset(indices, 0, sizeof(indices));
-	memset(dimensionSizes,0,sizeof(dimensionSizes));
+	memset(dimensionSizes, 0, sizeof(dimensionSizes));
 	pathName = NewHandle(0);
-	if(err =MemError())
+	if(err = MemError())
 		goto done;
 	
 	//now 2D
 	dimensionSizes[1] = 3;
 	
 	//need to make a textwave to contain the elements
-	if(err = MDMakeWave(&textWav,textWavName,NULL,dimensionSizes,type,overwrite))
+	if(err = MDMakeWave(&textWav, textWavName, NULL, dimensionSizes, type, overwrite))
 		goto done;
 
 	size = (nodesetval) ? nodesetval->nodeNr : 0;
@@ -52,51 +56,65 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	
 			path = ARJNxmlGetNodePath(nodesetval->nodeTab[ii]);
 		
-			if(err = MDGetWaveDimensions(textWav,&numDimensions,dimensionSizes))
+			if(err = MDGetWaveDimensions(textWav, &numDimensions, dimensionSizes))
 				return err;
 		
-			dimensionSizes[0] = dimensionSizes[0]+1; 
+			dimensionSizes[0] = dimensionSizes[0] + 1; 
 			dimensionSizes[1] = 3;
 			
-			if(err = MDChangeWave(textWav,-1,dimensionSizes))
+			if(err = MDChangeWave(textWav, -1, dimensionSizes))
 				goto done;
-			
-			if(err = PutCStringInHandle((char*)path,pathName))
-				goto done;
-			indices[0] = dimensionSizes[0]-1;
-			indices[1] = 0;
-			
+				
+			data.reset(path, sizeof(xmlChar), xmlStrlen(path));
+			data.append((void*) "\0", sizeof(char));
+			UTF8toSystemEncoding(&data);
 			if(path != NULL){
 				xmlFree(path);
 				path = NULL;
 			}
-			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+		
+			if(err = PutCStringInHandle((char*)data.getData(), pathName))
 				goto done;
-
+		
+			indices[0] = dimensionSizes[0] - 1;
+			indices[1] = 0;
+			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
+				goto done;
 
 			SetHandleSize(pathName , 0);
 			if(MemError())
 				goto done;
 					
 			if(nodesetval->nodeTab[ii]->ns != NULL && nodesetval->nodeTab[ii]->ns->href != NULL){
-				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix)>0){
-					if(err = PtrAndHand((char*)nodesetval->nodeTab[ii]->ns->prefix,pathName,strlen((char*)nodesetval->nodeTab[ii]->ns->prefix)))
+				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix) > 0){
+					data.reset((void*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar), strlen((char*)nodesetval->nodeTab[ii]->ns->prefix));
+					data.append((void*) "\0", sizeof(char));
+					UTF8toSystemEncoding(&data);
+					
+					if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
 						goto done;
-					if(err = PtrAndHand((char*)"=",pathName,strlen((char*)"=")))
+					if(err = PtrAndHand((char*)"=", pathName, sizeof(char)))
 						goto done;
 				}
-				if(err = PtrAndHand((char*)nodesetval->nodeTab[ii]->ns->href,pathName,strlen((char*)nodesetval->nodeTab[ii]->ns->href)))
+				data.reset((void*)nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->ns->href));
+				data.append((void*) "\0", sizeof(char));
+				UTF8toSystemEncoding(&data);
+				
+				if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
 					goto done;					
 				indices[1] = 1;
-				if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+				if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 					goto done;
 			}
 			
-
-			if(err = PutCStringInHandle((char*)(nodesetval->nodeTab[ii]->name),pathName))
+		    data.reset((void*) nodesetval->nodeTab[ii]->name, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->name));
+			data.append((void*) "\0", sizeof(char));
+			UTF8toSystemEncoding(&data);
+		
+			if(err = PutCStringInHandle((char*) data.getData(), pathName))
 				goto done;
 			indices[1] = 2;
-			if(err = MDSetTextWavePointValue(textWav,indices,pathName))
+			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 				goto done;
 
 		}
@@ -119,37 +137,21 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	long fileID = -1;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
+	MemoryStruct xPath, ns;
 
-	//the filename handle, Xpath handle,namespace handle,options handle
-	char *xPath = NULL;
-	char *ns    = NULL;
-	//size of handles
-	int sizexPath,sizens;
-	
+	//the filename handle, Xpath handle,namespace handle,options handle	
 	if(p->xPath == NULL || p->ns == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-		
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((sizens+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
-		
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
+			  
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLlistXpath: FileID isn't valid\r");
@@ -160,7 +162,7 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
 	if(err)
 		goto done;
 	//and print it out to a handle
@@ -181,10 +183,6 @@ done:
 	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
 	if(p->xPath != NULL)
 		DisposeHandle(p->xPath);
 	if(p->ns)

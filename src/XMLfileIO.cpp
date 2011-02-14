@@ -8,6 +8,10 @@
  */
 
 #include "XMLutils.h"
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
 
 //a utility that converts Mac paths to UNIX paths
 #ifdef _MACINTOSH_
@@ -255,7 +259,7 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	int err = 0;
 	
 	XOP_FILE_REF fileRef = NULL;
-	char fullFilePath [MAX_PATH_LEN+1], nativePath[MAX_PATH_LEN+1],unixpath[MAX_PATH_LEN+1];
+	char fullFilePath [MAX_PATH_LEN + 1], nativePath[MAX_PATH_LEN + 1], unixpath[MAX_PATH_LEN + 1];
 	char *macdelim = ":";
 	char *isMAC = NULL;
 	
@@ -263,10 +267,8 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element= NULL ;
 	xmlNs *nspace = NULL;
-	char *rootname   = NULL;
-	char *ns = NULL;
-	char *prefix = NULL;
-	
+	MemoryStruct rootname, ns, prefix;
+		
 	extern std::map<long,igorXMLfile> allXMLfiles;
 	
 	p->fileID = -1;
@@ -277,26 +279,18 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//allocate space for the C-strings.
-	rootname = (char*)malloc((GetHandleSize(p->rootelement)+1)*sizeof(char));
-	if(rootname == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((GetHandleSize(p->ns)+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	prefix = (char*)malloc((GetHandleSize(p->prefix)+1)*sizeof(char));
-	if(prefix == NULL){
-		err = NOMEM;goto done;
-	}
+	rootname.append(*p->rootelement, GetHandleSize(p->rootelement));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	prefix.append(*p->prefix, GetHandleSize(p->prefix));
 	
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->rootelement,rootname,GetHandleSize(p->rootelement)))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, GetHandleSize(p->ns)))
-		goto done;
-	if (err = GetCStringFromHandle(p->prefix, prefix, GetHandleSize(p->prefix)))
-		goto done;
+	rootname.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	prefix.append((void*) "\0", sizeof(char));
+	
+	SystemEncodingToUTF8(&rootname);
+	SystemEncodingToUTF8(&ns);
+	SystemEncodingToUTF8(&prefix);
+	
 	if(err = GetCStringFromHandle(p->fileName,fullFilePath,MAX_PATH_LEN))
 		goto done;
 	//get native filesystem filepath
@@ -320,37 +314,36 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST rootname , 0) != 0){
+	if(xmlValidateName(BAD_CAST rootname.getData() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
 	
-	
 	//create the root element
-	root_element=xmlNewNode(NULL , BAD_CAST rootname);
+	root_element = xmlNewNode(NULL , BAD_CAST rootname.getData());
 	if(root_element == NULL){
 		err = COULDNT_CREATE_NODE;
 		goto done;
 	}
 	
-	if(strlen(prefix)>0){
-		nspace = xmlNewNs(root_element, BAD_CAST ns, BAD_CAST prefix );
+	if(strlen((const char*) prefix.getData()) > 0){
+		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), BAD_CAST prefix.getData() );
 		root_element->ns = nspace;
 	} else {
-		nspace = xmlNewNs(root_element, BAD_CAST ns, NULL );
+		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), NULL );
 	}
 	
-	root_element = xmlDocSetRootElement(doc,root_element);
+	root_element = xmlDocSetRootElement(doc, root_element);
 	root_element = xmlDocGetRootElement(doc);
 	if(root_element == NULL){
 		err = COULDNT_CREATE_NODE;
 		goto done;
 	}
 	
-	if(err = XOPOpenFile(nativePath,1,&fileRef))
+	if(err = XOPOpenFile(nativePath, 1, &fileRef))
 		goto done;
 	
-	strcpy(openfile.fileNameStr,nativePath);
+	strcpy(openfile.fileNameStr, nativePath);
 	openfile.doc = doc;
 	openfile.fileRef = fileRef;
 	
@@ -365,12 +358,7 @@ done:
 		if(nspace != NULL)
 			xmlFreeNs(nspace);
 	}
-	if(rootname != NULL)
-		free(rootname);
-	if(ns != NULL)
-		free(ns);
-	if(prefix != NULL)
-		free(prefix);
+	
 	DisposeHandle(p->prefix);
 	DisposeHandle(p->fileName);
 	DisposeHandle(p->rootelement);

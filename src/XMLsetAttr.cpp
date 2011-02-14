@@ -27,6 +27,10 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
 
 int 
 set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
@@ -41,7 +45,7 @@ set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
 	size = (nodes) ? nodes->nodeNr : 0;
 	
 	for(i = 0; i < size; ++i) {
-		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*)attribute, (xmlChar*)entityEncoded);
+		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*) attribute, (xmlChar*) entityEncoded);
 	}
 
 done:
@@ -62,53 +66,29 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	xmlDoc *doc = NULL;
 	
 	//Xpath handle,namespace handle,options handle
-	char *xPath = NULL;
-	char *ns    = NULL;
-	char *attribute = NULL;
-	char *value = NULL;
-	//size of handles
-	int sizexPath,sizens,sizeattribute,sizevalue;
-			
+	MemoryStruct xPath, ns, attribute, value;
+	
 	if(p->xPath == NULL || p->ns == NULL || p->attribute == NULL || p->val == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	attribute.append(*p->attribute, GetHandleSize(p->attribute));
+	value.append(*p->val, GetHandleSize(p->val));
 	
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-	sizeattribute = GetHandleSize(p->attribute);
-	sizevalue = GetHandleSize(p->val);
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	attribute.append((void*) "\0", sizeof(char));
+	value.append((void*) "\0", sizeof(char));
 	
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((sizens+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	attribute = (char*)malloc((1+sizeattribute)*sizeof(char));
-	if(attribute == NULL){
-		err = NOMEM;goto done;
-	}	
-	value =  (char*)malloc((1+sizevalue)*sizeof(char));
-	if(value == NULL){
-		err = NOMEM;goto done;
-	}	
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
+	SystemEncodingToUTF8(&attribute);
+	SystemEncodingToUTF8(&value);
 	
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
-	if (err = GetCStringFromHandle(p->attribute, attribute, sizeattribute))
-		goto done;
-	if (err = GetCStringFromHandle(p->val, value, sizevalue))
-		goto done;
-		
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST attribute , 0) != 0){
+	if(xmlValidateName(BAD_CAST attribute.getData() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
@@ -123,11 +103,11 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
 	if(err)
 		goto done;
 	
-	if(err =set_attr(doc, xpathObj->nodesetval,attribute,value))
+	if(err =set_attr(doc, xpathObj->nodesetval, (char*) attribute.getData(), (char*) value.getData()))
 		goto done;
 	
 done:
@@ -142,10 +122,6 @@ done:
 	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
 	if(p->xPath != NULL)
 		DisposeHandle(p->xPath);
 	if(p->ns != NULL)	

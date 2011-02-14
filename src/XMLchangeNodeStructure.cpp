@@ -8,6 +8,11 @@
  */
 
 #include "XMLutils.h"
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
+
 /*
 XML_ELEMENT_NODE = 1
 XML_ATTRIBUTE_NODE = 2
@@ -32,7 +37,7 @@ XML_XINCLUDE_END = 20
 XML_DOCB_DOCUMENT_NODE = 21
 */
 
-int add_nodes(xmlXPathObject *xpathObj,xmlChar* nodeName, xmlChar* ns, int nodeType, xmlChar* content){
+int add_nodes(xmlXPathObject *xpathObj, const xmlChar* nodeName, const xmlChar* ns, int nodeType, const xmlChar* content){
 int err = 0;
 xmlNode *cur_node = NULL;
 xmlNode *added_node = NULL;
@@ -152,13 +157,9 @@ int XMLaddNode(XMLaddNodeStruct *p){
 
 	//the fileID, Xpath handle,namespace handle,options handle
 	long fileID = -1;
-	char *xPath = NULL;
-	char *ns    = NULL;
-	char *nodeName = NULL;
-	char *content = NULL;
+	MemoryStruct xPath, ns, nodeName, content;
+	
 	int nodeType = -1;
-	//size of handles
-	int sizexPath,sizens,sizenodeName,sizecontent;
 	
 	/* check if any of the argument string handles are null */
 	if(p->xPath == NULL || p->ns == NULL || p->nodeName == NULL || p->content == NULL){
@@ -166,42 +167,23 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 	}
 	
-	/* work out the size of each of the argument string handles */
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-	sizenodeName = GetHandleSize(p->nodeName);
-	sizecontent = GetHandleSize(p->content);
+	xPath.append(*p->xPath, sizeof(char), GetHandleSize(p->xPath));
+	ns.append(*p->ns, sizeof(char), GetHandleSize(p->ns));
+	nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName));
+	content.append(*p->xPath, sizeof(char), GetHandleSize(p->content));
 	
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((sizens+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	nodeName = (char*)malloc((1+sizenodeName)*sizeof(char));
-	if(nodeName == NULL){
-		err = NOMEM;goto done;
-	}
-	content = (char*)malloc((sizecontent+1)*sizeof(char));
-	if(content == NULL){
-		err = NOMEM;goto done;
-	}
-
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
-	if (err = GetCStringFromHandle(p->nodeName, nodeName, sizenodeName))
-		goto done;
-	if (err = GetCStringFromHandle(p->content, content, sizecontent))
-		goto done;
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	nodeName.append((void*) "\0", sizeof(char));
+	content.append((void*) "\0", sizeof(char));
+	
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
+	SystemEncodingToUTF8(&nodeName);
+	SystemEncodingToUTF8(&content);
 		
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST nodeName , 0) != 0){
+	if(xmlValidateName(BAD_CAST nodeName.getData() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
@@ -219,11 +201,11 @@ int XMLaddNode(XMLaddNodeStruct *p){
  
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath, (xmlChar*) ns, &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
 	if(err)
 		goto done;
 
-	if(err = add_nodes(xpathObj,BAD_CAST nodeName, BAD_CAST ns, nodeType, BAD_CAST content))
+	if(err = add_nodes(xpathObj, BAD_CAST nodeName.getData(), BAD_CAST ns.getData(), nodeType, BAD_CAST content.getData()))
 		goto done;
 		
 done:
@@ -238,14 +220,6 @@ done:
 	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
-	if(nodeName != NULL)
-		free(nodeName);
-	if(content != NULL)
-		free(content);	
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->nodeName);
 	DisposeHandle(p->ns);
@@ -281,12 +255,10 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 
+	MemoryStruct xPath, ns;
+	
 	//the fileID, Xpath handle,namespace handle,options handle
 	long fileID = -1;
-	char *xPath = NULL;
-	char *ns    = NULL;
-	//size of handles
-	int sizexPath,sizens;
 	
 	/* check if any of the argument string handles are null */
 	if(p->xPath == NULL || p->ns == NULL){
@@ -294,25 +266,15 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		goto done;
 	}
 	
-	/* work out the size of each of the argument string handles */
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-		
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((1+sizexPath)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((1+sizens)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
 	
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
+			
 	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
@@ -325,7 +287,7 @@ int XMLdelNode(XMLdelNodeStruct *p){
  
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath, (xmlChar*) ns, &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
 	if(err)
 		goto done;
 	
@@ -343,10 +305,7 @@ done:
 	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
+
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->ns);
 

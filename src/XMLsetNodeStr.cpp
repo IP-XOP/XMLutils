@@ -8,6 +8,10 @@
  */
 
 #include "XMLutils.h"
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
 
 /**
  * update_xpath_nodes:
@@ -80,11 +84,7 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	xmlDocPtr doc = NULL;
 
 	//Xpath handle,namespace handle,options handle
-	char *xPath = NULL;
-	char *ns    = NULL;
-	char *content = NULL;
-	//size of handles
-	int sizexPath,sizens,sizecontent;
+	MemoryStruct xPath, ns, content;
 	
 	/* check if any of the argument string handles are null */
 	if(p->xPath == NULL || p->ns == NULL || p->content == NULL){
@@ -92,33 +92,18 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 		goto done;
 	}
 	
-	/* work out the size of each of the argument string handles */
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-	sizecontent = GetHandleSize(p->content);
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	content.append(*p->content, GetHandleSize(p->content));
 	
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((sizens+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	content = (char*)malloc((sizecontent+1)*sizeof(char));
-	if(content == NULL){
-		err = NOMEM;goto done;
-	}
-
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
-	if (err = GetCStringFromHandle(p->content, content, sizecontent))
-		goto done;
-
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	content.append((void*) "\0", sizeof(char));
+	
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
+	SystemEncodingToUTF8(&content);
+	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLsetNodeStr: fileID doesn't exist\r");
@@ -130,11 +115,11 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath, (xmlChar*) ns, &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
 	if(err)
 		goto done;
 	
-	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content))
+	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content.getData()))
 		goto done;
 			
 done:
@@ -149,12 +134,6 @@ done:
 	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
-	if(content != NULL)
-		free(content);
 	DisposeHandle(p->xPath);
 	DisposeHandle(p->content);
 	DisposeHandle(p->ns);
