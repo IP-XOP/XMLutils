@@ -10,14 +10,19 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
 
 int 
 print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
     int err = 0;
-	int size,bufsize;
+	int size;
     int i;
 	xmlChar *xmloutputBuf = NULL;
 	char *space = " ";
+	MemoryStruct data;
 	
 	size = (nodes) ? nodes->nodeNr : 0;
     
@@ -39,24 +44,22 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 				break;
 		}
 		
-		if(xmloutputBuf != NULL){
-			if(i){
-				bufsize = strlen(space);			
-				if(err = PtrAndHand(space,output,bufsize))
-					goto done;	
-			}
-			bufsize = strlen((char*)xmloutputBuf);
-			if(err = PtrAndHand(xmloutputBuf,output,bufsize))
-				goto done;
+		if(xmloutputBuf){
+			if(i)
+				data.append(space, sizeof(char));
+			data.append(xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
 		}
-		
 	}
+		
+	UTF8toSystemEncoding(&data);
 	
+	if(err = PutCStringInHandle((char*) data.getData(), output))
+		goto done;
 	
 done:
-if(xmloutputBuf != NULL)
+if(xmloutputBuf)
 	xmlFree(xmloutputBuf);
 	
 	return err;
@@ -75,42 +78,23 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	xmlDoc *doc = NULL;
 
 	//the filename handle, Xpath handle,namespace handle,options handle
-	char *xPath = NULL;
-	char *ns    = NULL;
-	char *options = NULL;
-	//size of handles
-	int sizexPath,sizens,sizeoptions;
+	MemoryStruct xPath, ns, options;
 	
 	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	sizexPath = GetHandleSize(p->xPath);
-	sizens = GetHandleSize(p->ns);
-	sizeoptions = GetHandleSize(p->options);
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	options.append(*p->options, GetHandleSize(p->options));
 	
-	//allocate space for the C-strings.
-	xPath = (char*)malloc((sizexPath+1)*sizeof(char));
-	if(xPath == NULL){
-		err = NOMEM;goto done;
-	}
-	ns = (char*)malloc((sizens+1)*sizeof(char));
-	if(ns == NULL){
-		err = NOMEM;goto done;
-	}
-	options = (char*)malloc((sizeoptions+1)*sizeof(char));
-	if(options == NULL){
-		err = NOMEM;goto done;
-	}
+	xPath.append((void*) "\0", sizeof(char));
+	ns.append((void*) "\0", sizeof(char));
+	options.append((void*) "\0", sizeof(char));
 	
-	/* get all of the igor input strings into C-strings */
-	if (err = GetCStringFromHandle(p->xPath, xPath, sizexPath))
-		goto done;
-	if (err = GetCStringFromHandle(p->ns, ns, sizens))
-		goto done;
-	if (err = GetCStringFromHandle(p->options, options, sizeoptions))
-		goto done;
+	SystemEncodingToUTF8(&xPath);
+	SystemEncodingToUTF8(&ns);
 		
 	//get a handle for the output
 	output = NewHandle(0); 
@@ -128,7 +112,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath, BAD_CAST ns, &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
 	if(err)
 		goto done;
 	//and print it out to a handle
@@ -149,12 +133,6 @@ done:
 	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	if(xPath != NULL)
-		free(xPath);
-	if(ns != NULL)
-		free(ns);
-	if(options != NULL)
-		free(options);
 	if(p->xPath != NULL)
 		DisposeHandle(p->xPath);
 	if(p->options != NULL)
