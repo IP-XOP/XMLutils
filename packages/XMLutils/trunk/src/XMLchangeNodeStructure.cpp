@@ -172,11 +172,6 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName));
 	content.append(*p->xPath, sizeof(char), GetHandleSize(p->content));
 	
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	nodeName.append((void*) "\0", sizeof(char));
-	content.append((void*) "\0", sizeof(char));
-	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);
 	SystemEncodingToUTF8(&nodeName);
@@ -268,9 +263,6 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	
 	xPath.append(*p->xPath, GetHandleSize(p->xPath));
 	ns.append(*p->ns, GetHandleSize(p->ns));
-
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
 	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);

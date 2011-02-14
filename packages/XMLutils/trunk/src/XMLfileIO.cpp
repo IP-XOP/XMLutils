@@ -283,10 +283,6 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	ns.append(*p->ns, GetHandleSize(p->ns));
 	prefix.append(*p->prefix, GetHandleSize(p->prefix));
 	
-	rootname.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	prefix.append((void*) "\0", sizeof(char));
-	
 	SystemEncodingToUTF8(&rootname);
 	SystemEncodingToUTF8(&ns);
 	SystemEncodingToUTF8(&prefix);

@@ -88,10 +88,7 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	xPath.append(*p->xPath, GetHandleSize(p->xPath));
 	ns.append(*p->ns, GetHandleSize(p->ns));
 	options.append(*p->options, GetHandleSize(p->options));
-	
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	options.append((void*) "\0", sizeof(char));
+	options.nullTerminate();
 	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);

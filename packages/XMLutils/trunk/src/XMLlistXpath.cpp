@@ -66,7 +66,6 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 				goto done;
 				
 			data.reset(path, sizeof(xmlChar), xmlStrlen(path));
-			data.append((void*) "\0", sizeof(char));
 			UTF8toSystemEncoding(&data);
 			if(path != NULL){
 				xmlFree(path);
@@ -88,7 +87,6 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 			if(nodesetval->nodeTab[ii]->ns != NULL && nodesetval->nodeTab[ii]->ns->href != NULL){
 				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix) > 0){
 					data.reset((void*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar), strlen((char*)nodesetval->nodeTab[ii]->ns->prefix));
-					data.append((void*) "\0", sizeof(char));
 					UTF8toSystemEncoding(&data);
 					
 					if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
@@ -97,7 +95,6 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 						goto done;
 				}
 				data.reset((void*)nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->ns->href));
-				data.append((void*) "\0", sizeof(char));
 				UTF8toSystemEncoding(&data);
 				
 				if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
@@ -108,7 +105,6 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 			}
 			
 		    data.reset((void*) nodesetval->nodeTab[ii]->name, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->name));
-			data.append((void*) "\0", sizeof(char));
 			UTF8toSystemEncoding(&data);
 		
 			if(err = PutCStringInHandle((char*) data.getData(), pathName))
@@ -147,8 +143,6 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	
 	xPath.append(*p->xPath, GetHandleSize(p->xPath));
 	ns.append(*p->ns, GetHandleSize(p->ns));
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);
 			  

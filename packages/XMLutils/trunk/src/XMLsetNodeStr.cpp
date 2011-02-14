@@ -96,10 +96,6 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	ns.append(*p->ns, GetHandleSize(p->ns));
 	content.append(*p->content, GetHandleSize(p->content));
 	
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	content.append((void*) "\0", sizeof(char));
-	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);
 	SystemEncodingToUTF8(&content);

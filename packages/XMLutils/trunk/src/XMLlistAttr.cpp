@@ -66,9 +66,10 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 
 			xmlNodePath = NULL;
 			xmlNodePath = xmlGetNodePath(nodes->nodeTab[i]);
+			
 			data.reset(xmlNodePath, sizeof(xmlChar), xmlStrlen(xmlNodePath));
-			data.append((void*) "\0", sizeof(char));
 			UTF8toSystemEncoding(&data);
+			
 			if(xmlNodePath){
 				xmlFree(xmlNodePath);
 				xmlNodePath = NULL;
@@ -81,7 +82,6 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			
 			indices[1] = 1;
 			data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name));
-			data.append((void*) "\0", sizeof(char));
 			UTF8toSystemEncoding(&data);
 
 			if(err = PutCStringInHandle((char*)data.getData(), transfer))
@@ -92,8 +92,8 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			indices[1] = 2;
 			attrVal = NULL;
 			attrVal = xmlGetProp(nodes->nodeTab[i], properties->name);
+
 			data.reset(attrVal, sizeof(xmlChar), xmlStrlen(attrVal));
-			data.append((void*) "\0", sizeof(char));
 			UTF8toSystemEncoding(&data);
 			
 			if(attrVal){
@@ -139,8 +139,6 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	
 	xPath.append(*p->xPath, GetHandleSize(p->xPath));
 	ns.append(*p->ns, GetHandleSize(p->ns));
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
 
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);	

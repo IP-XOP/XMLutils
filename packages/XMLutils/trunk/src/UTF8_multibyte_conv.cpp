@@ -10,13 +10,16 @@
 //input should be NULL terminated, result IS NULL terminated.
 int UTF8toSystemEncoding(MemoryStruct *mem){
 	int err = 0;
-	
+		
 #ifdef _MACINTOSH_
 	char *convBuffer = NULL;
 	CFStringRef str;
 	if(mem == NULL || mem->getMemSize() == 0)
 		goto done;
 	
+	if((mem->getData())[mem->getMemSize() - 1] != '\0')
+		mem->append((void*) "\0", sizeof(char));
+
 	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), kCFStringEncodingUTF8, 0);
 	
 	mem->reset();
@@ -70,6 +73,9 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	
 	if(mem == NULL || mem->getMemSize() == 0)
 		goto done;
+	
+	if((mem->getData())[mem->getMemSize() - 1] != '\0')
+		mem->append((void*) "\0", sizeof(char));
 	
 	//have to have an intermediate step of converting to UTF-16
 	len = MultiByteToWideChar(CP_UTF8, 0, mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
@@ -143,6 +149,9 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	CFStringRef str;
 	if(mem == NULL || mem->getMemSize() == 0)
 		goto done;
+
+	if((mem->getData())[mem->getMemSize() - 1] != '\0')
+		mem->append((void*) "\0", sizeof(char));
 	
 	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), CFStringGetSystemEncoding(), 0);
 	
@@ -197,6 +206,9 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	
 	if(mem == NULL || mem->getMemSize() == 0)
 		goto done;
+	
+	if((mem->getData())[mem->getMemSize() - 1] != '\0')
+		mem->append((void*) "\0", sizeof(char));
 	
 	if (defaultANSICodePage == 0)			// Did not determine code page yet?
 		defaultANSICodePage = GetACP();
