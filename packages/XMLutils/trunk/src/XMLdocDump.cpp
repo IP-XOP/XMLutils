@@ -9,6 +9,11 @@
 
 #include "XMLutils.h"
 #include <string>
+#ifndef HAVE_MEMUTILS
+#include "memutils.h"
+#endif
+#include "UTF8_multibyte_conv.h"
+
 using namespace std;
 
 int
@@ -17,11 +22,13 @@ XMLdocDump(XMLdocDumpStruct *p){
 	extern std::map<long,igorXMLfile> allXMLfiles;
 	long fileID = -1;
 	xmlDoc *doc = NULL;
+	MemoryStruct data;
 	
 	int buffersize = 0;
 	xmlChar *xmlbuff = NULL;
 	
 	string str;
+	string::size_type pos;
 	string newline("\n");
 	size_t found;
 	long message;
@@ -41,17 +48,24 @@ XMLdocDump(XMLdocDumpStruct *p){
 	xmlIndentTreeOutput = 1;
 	xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
 	
-	str = ((char*)xmlbuff);
+	data.append((void*) xmlbuff, sizeof(xmlChar), xmlStrlen(xmlbuff));
+	UTF8toSystemEncoding(&data);
+	
+	str = ((char*)data.getData());
 	
 	//IGOR doesn't like \n, it wants \r.  So convert all \n to \r.
 	while(str.find(newline) != string::npos){
 		found = str.find(newline);
-		str.replace(found,1,"\r");
+		str.replace(found, 1, "\r");
 	}
 	
-	message = GetXOPMessage();
-	//dump it to IGOR command line.
-	XOPNotice(str.c_str());
+	pos = 0;
+	while (pos < str.length()){
+		message = GetXOPMessage();
+		//dump it to IGOR command line.
+		XOPNotice(str.substr(pos, 400).c_str());
+		pos += 400;
+	}
 	
 done:
 	/*
