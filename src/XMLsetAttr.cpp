@@ -77,11 +77,6 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	attribute.append(*p->attribute, GetHandleSize(p->attribute));
 	value.append(*p->val, GetHandleSize(p->val));
 	
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	attribute.append((void*) "\0", sizeof(char));
-	value.append((void*) "\0", sizeof(char));
-	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);
 	SystemEncodingToUTF8(&attribute);

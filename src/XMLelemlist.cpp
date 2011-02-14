@@ -289,7 +289,6 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			path = ARJNxmlGetNodePath(cur_node);//xmlGetNodePath(cur_node);
 			
 			data.reset(path, sizeof(xmlChar), xmlStrlen(path));
-			data.append((void*) "\0", sizeof(char));			
 			UTF8toSystemEncoding(&data);
 			
 			if(err = MDGetWaveDimensions(textWav, &numDimensions, dimensionSizes))
@@ -320,9 +319,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(MemError())
 				goto done;	
 			
-			data.reset((void*) cur_node->name, sizeof(xmlChar), xmlStrlen(cur_node->name));
-			data.append((void*) "\0", sizeof(char));
-			
+			data.reset((void*) cur_node->name, sizeof(xmlChar), xmlStrlen(cur_node->name));			
 			UTF8toSystemEncoding(&data);
 			
 			if(err = PutCStringInHandle((char*) data.getData(), pathName))
@@ -339,8 +336,6 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				
 				if(cur_node->ns->prefix != NULL && xmlStrlen(cur_node->ns->prefix) > 0){
 					data.reset((void*) cur_node->ns->prefix, sizeof(xmlChar), xmlStrlen(cur_node->ns->prefix));
-					data.append((void*) "\0", sizeof(char));			
-
 					UTF8toSystemEncoding(&data);
 					
 					if(err = PtrAndHand(data.getData(), pathName, strlen((char*) data.getData())))
@@ -349,9 +344,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 						goto done;
 				}
 				
-				data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href));
-				data.append((void*) "\0", sizeof(char));			
-
+				data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href));		
 				UTF8toSystemEncoding(&data);
 				
 				if(err = PtrAndHand((char*) data.getData(), pathName, strlen((char*) data.getData())))
@@ -372,7 +365,6 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				xmlChar *attributeProp = NULL;
 				
 				data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name));
-				data.append((void*) "\0", sizeof(char));
 				UTF8toSystemEncoding(&data);
 				
 				if(err = PtrAndHand((char*)data.getData(), pathName, strlen((char*)data.getData())))
@@ -382,7 +374,6 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				
 				attributeProp = xmlGetProp(cur_node, properties->name);
 				data.reset(attributeProp, sizeof(xmlChar), xmlStrlen(attributeProp));
-				data.append((void*) "\0", sizeof(char));
 				if(attributeProp)
 					xmlFree(attributeProp);
 				
@@ -473,7 +464,7 @@ XMLelemlist(XMLelemlistStructPtr p){
 		goto done;
 	
 done:
-	(err == 0)? (p->retval = 0):(p->retval = -1);
+	(err == 0)? (p->retval = 0) : (p->retval = -1);
 
 	if(err == FILEID_DOESNT_EXIST){
 		err = 0;

@@ -98,7 +98,6 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 
 		xmloutputBuf = xmlGetNodePath(xpathObj->nodesetval->nodeTab[j]);
 		data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
-		data.append((void*) "\0", sizeof(char));
 		UTF8toSystemEncoding(&data);
 		if(xmloutputBuf != NULL){
 			xmlFree(xmloutputBuf);
@@ -127,7 +126,6 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		}
 
 		data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
-		data.append((void*) "\0", sizeof(char));
 		UTF8toSystemEncoding(&data);
 		
 		if(xmloutputBuf != NULL){
@@ -190,10 +188,7 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 	xPath.append(*p->xPath, GetHandleSize(p->xPath));
 	ns.append(*p->ns, GetHandleSize(p->ns));
 	options.append(*p->options, GetHandleSize(p->options));
-	
-	xPath.append((void*) "\0", sizeof(char));
-	ns.append((void*) "\0", sizeof(char));
-	options.append((void*) "\0", sizeof(char));
+	options.nullTerminate();
 	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);
