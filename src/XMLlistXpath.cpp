@@ -89,7 +89,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 					data.reset((void*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar), strlen((char*)nodesetval->nodeTab[ii]->ns->prefix));
 					UTF8toSystemEncoding(&data);
 					
-					if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
+					if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 						goto done;
 					if(err = PtrAndHand((char*)"=", pathName, sizeof(char)))
 						goto done;
@@ -97,7 +97,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 				data.reset((void*)nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->ns->href));
 				UTF8toSystemEncoding(&data);
 				
-				if(err = PtrAndHand(data.getData(), pathName, strlen((char*)data.getData())))
+				if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 					goto done;					
 				indices[1] = 1;
 				if(err = MDSetTextWavePointValue(textWav, indices, pathName))
