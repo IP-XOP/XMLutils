@@ -78,7 +78,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 		mem->append((void*) "\0", sizeof(char));
 	
 	//have to have an intermediate step of converting to UTF-16
-	len = MultiByteToWideChar(CP_UTF8, 0, mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
+	len = MultiByteToWideChar(CP_UTF8, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
@@ -88,7 +88,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	} else
 		goto done;
 	
-	if(MultiByteToWideChar(CP_UTF8, 0, mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
+	if(MultiByteToWideChar(CP_UTF8, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
 		mem->reset();
 		if(convBuffer)
 			free(convBuffer);
@@ -125,7 +125,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		mem->WriteMemoryCallback(convBuffer2, sizeof(char), len2 + 1);
+		mem->append(convBuffer2, sizeof(char), len2 + 1);
 		if(convBuffer2)
 			free(convBuffer2);
 	}
@@ -214,7 +214,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 		defaultANSICodePage = GetACP();
 	
 	//have to have an intermediate step of converting to UTF-16
-	len = MultiByteToWideChar(defaultANSICodePage, 0, mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
+	len = MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
@@ -224,7 +224,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	} else
 		goto done;
 	
-	if(MultiByteToWideChar(defaultANSICodePage, 0, mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
+	if(MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
 		mem->reset();
 		if(convBuffer)
 			free(convBuffer);
@@ -255,7 +255,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		mem->WriteMemoryCallback(convBuffer2, sizeof(char), len2 + 1);
+		mem->append(convBuffer2, sizeof(char), len2 + 1);
 		if(convBuffer2)
 			free(convBuffer2);
 	}

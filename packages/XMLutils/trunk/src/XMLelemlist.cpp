@@ -338,16 +338,16 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 					data.reset((void*) cur_node->ns->prefix, sizeof(xmlChar), xmlStrlen(cur_node->ns->prefix));
 					UTF8toSystemEncoding(&data);
 					
-					if(err = PtrAndHand(data.getData(), pathName, strlen((char*) data.getData())))
+					if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
 						goto done;
-					if(err = PtrAndHand((char*) "=", pathName, 1))
+					if(err = PtrAndHand((void*) "=", pathName, sizeof(char)))
 						goto done;
 				}
 				
 				data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href));		
 				UTF8toSystemEncoding(&data);
 				
-				if(err = PtrAndHand((char*) data.getData(), pathName, strlen((char*) data.getData())))
+				if(err = PtrAndHand((char*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
 					goto done;					
 				
 				indices[1] = 1;
@@ -367,9 +367,9 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name));
 				UTF8toSystemEncoding(&data);
 				
-				if(err = PtrAndHand((char*)data.getData(), pathName, strlen((char*)data.getData())))
+				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 					goto done;
-				if(err = PtrAndHand(sep1, pathName, strlen(sep1)))
+				if(err = PtrAndHand(sep1, pathName, sizeof(char) * strlen(sep1)))
 					goto done;	
 				
 				attributeProp = xmlGetProp(cur_node, properties->name);
@@ -379,9 +379,9 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				
 				UTF8toSystemEncoding(&data);
 				
-				if(err = PtrAndHand((char*)data.getData(), pathName, strlen((char*)data.getData())))
+				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 					goto done;
-				if(err = PtrAndHand(sep, pathName, strlen(sep)))
+				if(err = PtrAndHand(sep, pathName, sizeof(char) * strlen(sep)))
 					goto done;
 			}
 			indices[1] = 2;
