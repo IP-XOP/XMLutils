@@ -14,8 +14,14 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 #ifdef _MACINTOSH_
 	char *convBuffer = NULL;
 	CFStringRef str;
-	if(mem == NULL || mem->getMemSize() == 0)
+
+	if(mem == NULL)
 		goto done;
+	
+	if(mem->getMemSize() == 0){
+		mem->reset();
+		goto done;
+	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
 		mem->append((void*) "\0", sizeof(char));
@@ -71,8 +77,13 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	
 	static int defaultANSICodePage = 0;
 	
-	if(mem == NULL || mem->getMemSize() == 0)
+	if(mem == NULL)
 		goto done;
+	
+	if(mem->getMemSize() == 0){
+		mem->reset();
+		goto done;
+	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
 		mem->append((void*) "\0", sizeof(char));
@@ -137,6 +148,9 @@ done:
 	if(err)
 		mem->reset();
 	
+	if(!err && mem && mem->getMemSize() == 0)
+		mem->append((void*) "\0", sizeof(char));
+	
 	return err;
 }
 
@@ -147,8 +161,13 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 #ifdef _MACINTOSH_
 	char *convBuffer = NULL;
 	CFStringRef str;
-	if(mem == NULL || mem->getMemSize() == 0)
+	if(mem == NULL)
 		goto done;
+
+	if(mem->getMemSize() == 0){
+		mem->reset();
+		goto done;
+	}
 
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
 		mem->append((void*) "\0", sizeof(char));
@@ -204,8 +223,13 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	
 	static int defaultANSICodePage = 0;
 	
-	if(mem == NULL || mem->getMemSize() == 0)
+	if(mem == NULL)
 		goto done;
+	
+	if(mem->getMemSize() == 0){
+		mem->reset();
+		goto done;
+	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
 		mem->append((void*) "\0", sizeof(char));
@@ -266,6 +290,9 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 done:
 	if(err)
 		mem->reset();
+
+	if(!err && mem && mem->getMemSize() == 0)
+		mem->append((void*) "\0", sizeof(char));
 	
 	return err;
 }
