@@ -29,7 +29,7 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
     int i;
 	xmlChar *encValue = NULL;
 	
-	if(nodes->nodeTab && nodes->nodeTab[0]!= NULL){
+	if(nodes && nodes->nodeTab && nodes->nodeTab[0]!= NULL){
 		encValue = xmlEncodeEntitiesReentrant(nodes->nodeTab[0]->doc, value);
 	}
     size = (nodes) ? nodes->nodeNr : 0;

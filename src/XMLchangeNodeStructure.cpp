@@ -46,9 +46,9 @@ int numNodes,j,curtype;
 xmlChar *encContent = NULL;
 xmlIndentTreeOutput = 1;
 					 
-//the content may have non-allowed XML characters, such as < or >, encode them
-if(xpathObj->nodesetval->nodeTab && xpathObj->nodesetval->nodeTab[0] != NULL){
-	encContent = xmlEncodeEntitiesReentrant(xpathObj->nodesetval->nodeTab[0]->doc, content);
+	//the content may have non-allowed XML characters, such as < or >, encode them
+if(xpathObj->nodesetval && xpathObj->nodesetval->nodeTab && xpathObj->nodesetval->nodeTab[0] != NULL){
+		encContent = xmlEncodeEntitiesReentrant(xpathObj->nodesetval->nodeTab[0]->doc, content);
 }
 	
 /* work out how many nodes in the nodeset from the Xpath object */
@@ -170,7 +170,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	xPath.append(*p->xPath, sizeof(char), GetHandleSize(p->xPath));
 	ns.append(*p->ns, sizeof(char), GetHandleSize(p->ns));
 	nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName));
-	content.append(*p->xPath, sizeof(char), GetHandleSize(p->content));
+	content.append(*p->content, sizeof(char), GetHandleSize(p->content));
 	
 	SystemEncodingToUTF8(&xPath);
 	SystemEncodingToUTF8(&ns);

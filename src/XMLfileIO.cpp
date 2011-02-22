@@ -287,10 +287,10 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	SystemEncodingToUTF8(&ns);
 	SystemEncodingToUTF8(&prefix);
 	
-	if(err = GetCStringFromHandle(p->fileName,fullFilePath,MAX_PATH_LEN))
+	if(err = GetCStringFromHandle(p->fileName, fullFilePath, MAX_PATH_LEN))
 		goto done;
 	//get native filesystem filepath
-	if (err = GetNativePath(fullFilePath,nativePath))
+	if (err = GetNativePath(fullFilePath, nativePath))
 		goto done;
 	
 	//convert native Mac path to UNIX
@@ -322,10 +322,10 @@ XMLcreateFile(XMLcreateFileStruct *p){
 		goto done;
 	}
 	
-	if(strlen((const char*) prefix.getData()) > 0){
+	if(prefix.getMemSize() && strlen((const char*) prefix.getData()) > 0){
 		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), BAD_CAST prefix.getData() );
 		root_element->ns = nspace;
-	} else {
+	} else if (ns.getMemSize() && strlen((const char*) ns.getData())) {
 		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), NULL );
 	}
 	
