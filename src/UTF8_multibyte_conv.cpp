@@ -24,7 +24,10 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1){
+			err = 1;
+			goto done;
+		}
 
 	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), kCFStringEncodingUTF8, 0);
 	
@@ -45,6 +48,11 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 									&usedBufLen);
 		if(numChars > 0){
 			convBuffer = (char*) malloc(sizeof(char) * (usedBufLen + 1));
+			if(!convBuffer){
+				CFRelease(str);
+				err = 1;
+				goto done;
+			}
 			memset(convBuffer, 0, sizeof(char) * (usedBufLen + 1));
 			
 			if(!convBuffer){
@@ -61,7 +69,11 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 										sizeof(char) * usedBufLen,
 										&usedBufLen);
 			
-			mem->append(convBuffer, sizeof(char), usedBufLen + 1);
+			if(mem->append(convBuffer, sizeof(char), usedBufLen + 1) == -1){
+				err = 1;
+				CFRelease(str);
+				goto done;
+			}
 			
 			if(convBuffer)
 				free(convBuffer);
@@ -86,14 +98,17 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1){
+			err = 1;
+			goto done;
+		}
 	
 	//have to have an intermediate step of converting to UTF-16
 	len = MultiByteToWideChar(CP_UTF8, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
-			err = NOMEM;
+			err = 1;
 			goto done;
 		}
 	} else
@@ -123,7 +138,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	if(convBuffer2 == NULL){
 		if(convBuffer)
 			free(convBuffer);
-		err = NOMEM;
+		err = 1;
 		goto done;
 	}
 	
@@ -136,7 +151,12 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		mem->append(convBuffer2, sizeof(char), len2 + 1);
+		if(mem->append(convBuffer2, sizeof(char), len2 + 1) == -1){
+			err = 1;
+			if(convBuffer2)
+				free(convBuffer2);
+			goto done;
+		}
 		if(convBuffer2)
 			free(convBuffer2);
 	}
@@ -149,7 +169,8 @@ done:
 		mem->reset();
 	
 	if(!err && mem && mem->getMemSize() == 0)
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1)
+			err = 1;
 	
 	return err;
 }
@@ -170,7 +191,10 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	}
 
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1){
+			err = 1;
+			goto done;
+		}
 	
 	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), CFStringGetSystemEncoding(), 0);
 	
@@ -195,7 +219,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 			
 			if(!convBuffer){
 				CFRelease(str);
-				err = NOMEM;
+				err = 1;
 				goto done;
 			}
 			numChars = CFStringGetBytes(str,
@@ -207,7 +231,12 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 										sizeof(char) * usedBufLen,
 										&usedBufLen);
 			
-			mem->append(convBuffer, sizeof(char), usedBufLen + 1);
+			if(mem->append(convBuffer, sizeof(char), usedBufLen + 1) == -1){
+				err = 1;
+				if(convBuffer)
+					free(convBuffer);
+				goto done;
+			}
 			
 			if(convBuffer)
 				free(convBuffer);
@@ -232,7 +261,10 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1){
+			err = 1;
+			goto done;
+		}
 	
 	if (defaultANSICodePage == 0)			// Did not determine code page yet?
 		defaultANSICodePage = GetACP();
@@ -242,7 +274,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
-			err = NOMEM;
+			err = 1;
 			goto done;
 		}
 	} else
@@ -279,7 +311,12 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		mem->append(convBuffer2, sizeof(char), len2 + 1);
+		if(mem->append(convBuffer2, sizeof(char), len2 + 1) == -1){
+			err = 1;
+			if(convBuffer2)
+				free(convBuffer2);
+			goto done;
+		}
 		if(convBuffer2)
 			free(convBuffer2);
 	}
@@ -292,7 +329,8 @@ done:
 		mem->reset();
 
 	if(!err && mem && mem->getMemSize() == 0)
-		mem->append((void*) "\0", sizeof(char));
+		if(mem->append((void*) "\0", sizeof(char)) == -1)
+			err = 1;
 	
 	return err;
 }

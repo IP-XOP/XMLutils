@@ -9,6 +9,10 @@
  otherwise the conversion is done.
  NOTE: all output is NULL terminated.  Thus if mem.getMemSize() == 0 is used as input, then
  the output will be "\0".
+ 
+ return values:
+ 0 = SUCCESS
+ 1 = NO MEMORY
  */
 int UTF8toSystemEncoding(MemoryStruct *mem);
 int SystemEncodingToUTF8(MemoryStruct *mem);

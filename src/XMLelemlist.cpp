@@ -288,8 +288,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				goto done;
 			path = ARJNxmlGetNodePath(cur_node);//xmlGetNodePath(cur_node);
 			
-			data.reset(path, sizeof(xmlChar), xmlStrlen(path));
-			UTF8toSystemEncoding(&data);
+			if(data.reset(path, sizeof(xmlChar), xmlStrlen(path)) == -1){
+				err = NOMEM;
+				goto done;
+			}
+			if(err = UTF8toSystemEncoding(&data))
+				goto done;
 			
 			if(err = MDGetWaveDimensions(textWav, &numDimensions, dimensionSizes))
 				return err;
@@ -319,8 +323,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(MemError())
 				goto done;	
 			
-			data.reset((void*) cur_node->name, sizeof(xmlChar), xmlStrlen(cur_node->name));			
-			UTF8toSystemEncoding(&data);
+			if(data.reset((void*) cur_node->name, sizeof(xmlChar), xmlStrlen(cur_node->name)) == -1){
+				err = NOMEM;
+				goto done;
+			}
+			if(err = UTF8toSystemEncoding(&data))
+				goto done;
 			
 			if(err = PutCStringInHandle((char*) data.getData(), pathName))
 				goto done;			
@@ -335,8 +343,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 					goto done;
 				
 				if(cur_node->ns->prefix != NULL && xmlStrlen(cur_node->ns->prefix) > 0){
-					data.reset((void*) cur_node->ns->prefix, sizeof(xmlChar), xmlStrlen(cur_node->ns->prefix));
-					UTF8toSystemEncoding(&data);
+					if(data.reset((void*) cur_node->ns->prefix, sizeof(xmlChar), xmlStrlen(cur_node->ns->prefix)) == -1){
+						err = NOMEM;
+						goto done;
+					}
+					if(err = UTF8toSystemEncoding(&data))
+						goto done;
 					
 					if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
 						goto done;
@@ -344,8 +356,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 						goto done;
 				}
 				
-				data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href));		
-				UTF8toSystemEncoding(&data);
+				if(data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href)) == -1){
+					err = NOMEM;
+					goto done;
+				}
+				if(err = UTF8toSystemEncoding(&data))
+					goto done;
 				
 				if(err = PtrAndHand((char*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
 					goto done;					
@@ -364,8 +380,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			for(properties = cur_node->properties ; properties != NULL ; properties = properties->next){
 				xmlChar *attributeProp = NULL;
 				
-				data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name));
-				UTF8toSystemEncoding(&data);
+				if(data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name)) == -1){
+					err = NOMEM;
+					goto done;
+				}
+				if(err = UTF8toSystemEncoding(&data))
+					goto done;
 				
 				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 					goto done;
@@ -373,11 +393,15 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 					goto done;	
 				
 				attributeProp = xmlGetProp(cur_node, properties->name);
-				data.reset(attributeProp, sizeof(xmlChar), xmlStrlen(attributeProp));
+				if(data.reset(attributeProp, sizeof(xmlChar), xmlStrlen(attributeProp)) == -1){
+					err = NOMEM;
+					goto done;
+				}
 				if(attributeProp)
 					xmlFree(attributeProp);
 				
-				UTF8toSystemEncoding(&data);
+				if(err = UTF8toSystemEncoding(&data))
+					goto done;
 				
 				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
 					goto done;

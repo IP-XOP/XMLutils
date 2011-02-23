@@ -279,13 +279,25 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//allocate space for the C-strings.
-	rootname.append(*p->rootelement, GetHandleSize(p->rootelement));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	prefix.append(*p->prefix, GetHandleSize(p->prefix));
+	if(rootname.append(*p->rootelement, GetHandleSize(p->rootelement)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(prefix.append(*p->prefix, GetHandleSize(p->prefix)) == -1){
+		err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&rootname);
-	SystemEncodingToUTF8(&ns);
-	SystemEncodingToUTF8(&prefix);
+	if(err = SystemEncodingToUTF8(&rootname))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+		goto done;
+	if(err = SystemEncodingToUTF8(&prefix))
+		goto done;
 	
 	if(err = GetCStringFromHandle(p->fileName, fullFilePath, MAX_PATH_LEN))
 		goto done;
