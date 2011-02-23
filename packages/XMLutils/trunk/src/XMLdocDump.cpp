@@ -48,8 +48,13 @@ XMLdocDump(XMLdocDumpStruct *p){
 	xmlIndentTreeOutput = 1;
 	xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
 	
-	data.append((void*) xmlbuff, sizeof(xmlChar), xmlStrlen(xmlbuff));
-	UTF8toSystemEncoding(&data);
+	if(data.append((void*) xmlbuff, sizeof(xmlChar), xmlStrlen(xmlbuff)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	
+	if(err = UTF8toSystemEncoding(&data))
+		goto done;
 	
 	str = ((char*)data.getData());
 	

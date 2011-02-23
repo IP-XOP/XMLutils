@@ -46,14 +46,21 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 		
 		if(xmloutputBuf){
 			if(i)
-				data.append(space, sizeof(char));
-			data.append(xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
+				if(data.append(space, sizeof(char))){
+					err = NOMEM;
+					goto done;
+				}
+			if(data.append(xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
+				err = NOMEM;
+				goto done;
+			}
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
 		}
 	}
 		
-	UTF8toSystemEncoding(&data);
+	if(err = UTF8toSystemEncoding(&data))
+		goto done;
 	
 	if(err = PutCStringInHandle((char*) data.getData(), output))
 		goto done;
@@ -85,13 +92,27 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	options.append(*p->options, GetHandleSize(p->options));
-	options.nullTerminate();
+	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(options.append(*p->options, GetHandleSize(p->options)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(options.nullTerminate() == -1){
+		err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+		goto done;
 		
 	//get a handle for the output
 	output = NewHandle(0); 

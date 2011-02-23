@@ -72,15 +72,31 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	attribute.append(*p->attribute, GetHandleSize(p->attribute));
-	value.append(*p->val, GetHandleSize(p->val));
+	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(attribute.append(*p->attribute, GetHandleSize(p->attribute)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(value.append(*p->val, GetHandleSize(p->val)) == -1){
+		err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);
-	SystemEncodingToUTF8(&attribute);
-	SystemEncodingToUTF8(&value);
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+		goto done;
+	if(err = SystemEncodingToUTF8(&attribute))
+		goto done;
+	if(err = SystemEncodingToUTF8(&value))
+	   goto done;
 	
 	//check if the node name is invalid
 	if(xmlValidateName(BAD_CAST attribute.getData() , 0) != 0){

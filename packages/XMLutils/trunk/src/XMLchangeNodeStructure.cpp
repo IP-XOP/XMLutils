@@ -167,15 +167,31 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, sizeof(char), GetHandleSize(p->xPath));
-	ns.append(*p->ns, sizeof(char), GetHandleSize(p->ns));
-	nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName));
-	content.append(*p->content, sizeof(char), GetHandleSize(p->content));
+	if(xPath.append(*p->xPath, sizeof(char), GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, sizeof(char), GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(content.append(*p->content, sizeof(char), GetHandleSize(p->content)) == -1){
+	    err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);
-	SystemEncodingToUTF8(&nodeName);
-	SystemEncodingToUTF8(&content);
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+	   goto done;
+	if(err = SystemEncodingToUTF8(&nodeName))
+		goto done;
+	if(err = SystemEncodingToUTF8(&content))
+		goto done;
 		
 	//check if the node name is invalid
 	if(xmlValidateName(BAD_CAST nodeName.getData() , 0) != 0){
@@ -261,11 +277,19 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
+	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+		goto done;
 			
 	
 	fileID = (long)roundf(p->fileID);	

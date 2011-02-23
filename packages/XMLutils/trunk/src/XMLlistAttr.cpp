@@ -67,8 +67,12 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			xmlNodePath = NULL;
 			xmlNodePath = xmlGetNodePath(nodes->nodeTab[i]);
 			
-			data.reset(xmlNodePath, sizeof(xmlChar), xmlStrlen(xmlNodePath));
-			UTF8toSystemEncoding(&data);
+			if(data.reset(xmlNodePath, sizeof(xmlChar), xmlStrlen(xmlNodePath)) == -1){
+				err = NOMEM;
+				goto done;
+			}
+			if(err = UTF8toSystemEncoding(&data))
+				goto done;
 			
 			if(xmlNodePath){
 				xmlFree(xmlNodePath);
@@ -81,8 +85,12 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 				goto done;
 			
 			indices[1] = 1;
-			data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name));
-			UTF8toSystemEncoding(&data);
+			if(data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name)) == -1){
+				err = NOMEM;
+				goto done;
+			}
+			if(err = UTF8toSystemEncoding(&data))
+				goto done;
 
 			if(err = PutCStringInHandle((char*)data.getData(), transfer))
 				goto done;
@@ -93,8 +101,12 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			attrVal = NULL;
 			attrVal = xmlGetProp(nodes->nodeTab[i], properties->name);
 
-			data.reset(attrVal, sizeof(xmlChar), xmlStrlen(attrVal));
-			UTF8toSystemEncoding(&data);
+			if(data.reset(attrVal, sizeof(xmlChar), xmlStrlen(attrVal)) == -1){
+				err = NOMEM;
+				goto done;
+			}
+			if(err = UTF8toSystemEncoding(&data))
+				goto done;
 			
 			if(attrVal){
 				xmlFree(attrVal);
@@ -137,11 +149,19 @@ XMLlistAttr(XMLlistAttrStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
+	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
 
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);	
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+	   goto done;	
 	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){

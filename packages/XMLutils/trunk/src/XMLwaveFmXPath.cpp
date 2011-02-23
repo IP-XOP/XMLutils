@@ -97,8 +97,14 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		NODEindices[0] = j;
 
 		xmloutputBuf = xmlGetNodePath(xpathObj->nodesetval->nodeTab[j]);
-		data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
-		UTF8toSystemEncoding(&data);
+		if(data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
+			err = NOMEM;
+			goto done;
+		}
+		
+		if(err = UTF8toSystemEncoding(&data))
+			goto done;
+		
 		if(xmloutputBuf != NULL){
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
@@ -125,8 +131,12 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 				break;
 		}
 
-		data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf));
-		UTF8toSystemEncoding(&data);
+		if(data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
+			err = NOMEM;
+			goto done;
+		}
+		if(err = UTF8toSystemEncoding(&data))
+			goto done;
 		
 		if(xmloutputBuf != NULL){
 			xmlFree(xmloutputBuf);
@@ -185,13 +195,27 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	options.append(*p->options, GetHandleSize(p->options));
-	options.nullTerminate();
+	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(options.append(*p->options, GetHandleSize(p->options)) == -1){
+		err = NOMEM;
+		goto done;
+	}
+	if(options.nullTerminate() == -1){
+		err = NOMEM;
+		goto done;
+	}
 	
-	SystemEncodingToUTF8(&xPath);
-	SystemEncodingToUTF8(&ns);
+	if(err = SystemEncodingToUTF8(&xPath))
+		goto done;
+	if(err = SystemEncodingToUTF8(&ns))
+		goto done;
 
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
