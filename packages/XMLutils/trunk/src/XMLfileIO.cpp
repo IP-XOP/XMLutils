@@ -84,7 +84,7 @@ XMLopenFile(XMLopenFileStruct *p){
 	}
 	
 	/* Load XML document */
-    doc = xmlParseFile(nativePath);
+    doc = xmlReadFile(nativePath, NULL, XML_PARSE_NOENT);
     if (doc == NULL) {
 		err = 0;
 		p->retval = -1;

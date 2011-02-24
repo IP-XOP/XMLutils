@@ -101,10 +101,10 @@ XMLschemaValidate(XMLschemaValidateStruct *p){
     }
 	
 	//validate
-	isValid = (xmlSchemaValidateDoc(valid_ctxt, doc) == 0);
+	isValid = xmlSchemaValidateDoc(valid_ctxt, doc);
 
     /* force the return value to be non-negative on success */
-    if(isValid)
+    if(isValid == 0)
 		p->retval = 1;
 	
 done:
