@@ -3,7 +3,7 @@
 resource 'vers' (1) {						/* XOP version info */
 	0x01, 0x10, final, 0x00, 0,				/* version bytes and country integer */
 	"1.10",
-	"1.10, © 1996-2004 WaveMetrics, Inc., all rights reserved."
+	"1.10, ï¿½ 1996-2004 WaveMetrics, Inc., all rights reserved."
 };
 
 resource 'vers' (2) {						/* Igor version info */
@@ -44,6 +44,10 @@ resource 'STR#' (1100) {					/* custom error messages */
 	"Failed to allocate XML parser context",
 	//[15]
 	"XML document not validated",
+	//[16] 
+	"XML schema document is not valid",
+	//[17]
+	"could not create schema context",
 	}
 };
 
@@ -176,6 +180,13 @@ resource 'XOPF' (1100) {
 		NT_FP64,
 		{
 		NT_FP64,							//fileID
+		},
+		"XMLschemaValidate",
+		F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+		{
+			NT_FP64,							//fileID
+			HSTRING_TYPE,						//schema file name
 		},
 	}
 };
