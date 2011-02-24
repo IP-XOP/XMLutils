@@ -61,6 +61,8 @@ RegisterFunction()
 			break;
 		case 13:
 			return ((long)XMLdocDump);
+		case 14:
+			return ((long)XMLschemaValidate);
 			break;
 	}
 	return NIL;

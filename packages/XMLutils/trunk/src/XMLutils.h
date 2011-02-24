@@ -204,3 +204,15 @@ typedef struct XMLdocDumpStruct {
 }XMLdocDumpStruct, *XMLdocDumpStructPtr;
 #pragma pack()
 int XMLdocDump(XMLdocDumpStruct *p);
+
+/*
+ in XMLschemaValidate.cpp
+ */
+#pragma pack(2)	
+typedef struct XMLschemaValidateStruct {
+	Handle schemaFileName;
+	DOUBLE fileID;
+	DOUBLE retval;
+}XMLschemaValidateStruct, *XMLschemaValidateStructPtr;
+#pragma pack()
+int XMLschemaValidate(XMLschemaValidateStruct *p);

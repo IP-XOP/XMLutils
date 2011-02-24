@@ -38,6 +38,10 @@ BEGIN
 	"Failed to allocate XML parser context.\0",
 	//[15]
 	"XML document not validated.\0",
+	//[16] 
+	"XML schema document is not valid.\0",
+	//[17]
+	"could not create schema context\0",
 	0,								// NOTE: 0 required to terminate the resource.
 END
 
@@ -157,6 +161,12 @@ BEGIN
 				F_EXP | F_EXTERNAL,				// Function category,
 		NT_FP64,
     		NT_FP64,							//fileID
+    	0,
+    	 "XMLschemaValidate\0",
+				F_EXP | F_EXTERNAL,				// Function category,
+		NT_FP64,
+    		NT_FP64,							//fileID
+    		HSTRING_TYPE,						//schema file name
     	0,
 	0,								// NOTE: 0 required to terminate the resource.
 END
