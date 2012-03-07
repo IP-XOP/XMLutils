@@ -59,7 +59,6 @@ long MemoryStruct::reset(void *ptr, size_t numbytes){
 	}
 }
 
-//resets the memory
 long MemoryStruct::nullTerminate(){
 	memory = (unsigned char*) myrealloc(memory, memsize + 1);
 	if(memory){

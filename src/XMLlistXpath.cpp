@@ -26,9 +26,9 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	char *textWavName = "M_listXPath";
 	int overwrite = 1;		//wave will always be overwritten
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
-	long dimensionSizes[MAX_DIMENSIONS+1];
-	long numDimensions = 0;
-	long indices[MAX_DIMENSIONS+1];
+	CountInt dimensionSizes[MAX_DIMENSIONS+1];
+	CountInt indices[MAX_DIMENSIONS+1];
+	int numDimensions = 0;
 	int size = 0;
 	MemoryStruct data;
 	Handle pathName = NULL;

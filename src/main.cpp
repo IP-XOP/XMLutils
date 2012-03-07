@@ -6,63 +6,57 @@ XMLutils - an XOP designed to work with XML files
 
 std::map<long,igorXMLfile> allXMLfiles;
 
-#ifdef _MACINTOSH_
-HOST_IMPORT int main(IORecHandle ioRecHandle);
-#endif	
-#ifdef _WINDOWS_
-HOST_IMPORT void main(IORecHandle ioRecHandle);
-#endif
-
-static long
+static XOPIORecResult
 RegisterFunction()
 {
 	int funcIndex;
 
-	funcIndex = GetXOPItem(0);			// Which function invoked ?
+	funcIndex = (int) GetXOPItem(0);			// Which function invoked ?
 	switch (funcIndex) {
 		case 0:							
-			return((long)XMLelemlist);	// This function is called using the direct method.
+			return((XOPIORecResult)XMLelemlist);	// This function is called using the direct method.
 			break;
 		case 1:
-			return((long)XMLstrFmXPath);
+			return((XOPIORecResult)XMLstrFmXPath);
 			break;
 		case 2:
-			return((long)XMLWaveFmXPath);
+			return((XOPIORecResult)XMLWaveFmXPath);
 			break;
 		case 3:
-			return((long)XMLsetNodeStr);
+			return((XOPIORecResult)XMLsetNodeStr);
 			break;
 		case 4:
-			return((long)XMLlistAttr);
+			return((XOPIORecResult)XMLlistAttr);
 			break;
 		case 5:
-			return((long)XMLsetAttr);
+			return((XOPIORecResult)XMLsetAttr);
 			break;
 		case 6:
-			return ((long)XMLopenFile);
+			return ((XOPIORecResult)XMLopenFile);
 			break;
 		case 7:
-			return ((long)XMLcloseFile);
+			return ((XOPIORecResult)XMLcloseFile);
 			break;
 		case 8:
-			return ((long)XMLSAVEFILE);
+			return ((XOPIORecResult)XMLSAVEFILE);
 			break;
 		case 9:
-			return ((long)XMLcreateFile);
+			return ((XOPIORecResult)XMLcreateFile);
 			break;
 		case 10:
-			return ((long)XMLaddNode);
+			return ((XOPIORecResult)XMLaddNode);
 			break;
 		case 11:
-			return ((long)XMLdelNode);
+			return ((XOPIORecResult)XMLdelNode);
 			break;
 		case 12:
-			return ((long)XMLlistXPath);
+			return ((XOPIORecResult)XMLlistXPath);
 			break;
 		case 13:
-			return ((long)XMLdocDump);
+			return ((XOPIORecResult)XMLdocDump);
+			break;
 		case 14:
-			return ((long)XMLschemaValidate);
+			return ((XOPIORecResult)XMLschemaValidate);
 			break;
 	}
 	return NIL;
@@ -76,7 +70,8 @@ RegisterFunction()
 static void
 XOPEntry(void)
 {	
-	long result = 0;
+	XOPIORecResult result = 0;
+
 	XMLcloseFileStruct p;
 	p.fileID = -1;
 	p.toSave = 0;
@@ -106,33 +101,32 @@ XOPEntry(void)
 	main() does any necessary initialization and then sets the XOPEntry field of the
 	ioRecHandle to the address to be called for future messages.
 */
-#ifdef _MACINTOSH_
 HOST_IMPORT int main(IORecHandle ioRecHandle)
-#endif	
-#ifdef _WINDOWS_
-HOST_IMPORT void main(IORecHandle ioRecHandle)
-#endif
 {	
 	XOPInit(ioRecHandle);							// Do standard XOP initialization.
 	SetXOPEntry(XOPEntry);							// Set entry point for future calls.
 	
-	if (igorVersion < 504)
-		SetXOPResult(REQUIRES_IGOR_504);
+	if (igorVersion < 600){
+		SetXOPResult(REQUIRES_IGOR_600);
+		return EXIT_FAILURE;
+	}
 	else
 		SetXOPResult(0L);
+	
+	return EXIT_SUCCESS;
 }
 
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 double roundf(double val){
 	double retval;
-	if(val>0){
-	if(val-floor(val) < 0.5){
+	if(val > 0){
+	if(val - floor(val) < 0.5){
 		retval = floor(val);
 	} else {
 		retval = ceil(val);
 	}
 	} else {
-	if(val-floor(val) <= 0.5){
+	if(val - floor(val) <= 0.5){
 		retval = floor(val);
 	} else {
 		retval = ceil(val);

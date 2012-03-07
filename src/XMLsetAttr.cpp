@@ -1,29 +1,3 @@
-/*
- *  XMLsetAttr.cpp
- *  XMLutils
- *
- *  Created by andrew on 13/11/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
-/*
- *  XMLlistAttr.cpp
- *  XMLutils
- *
- *  Created by andrew on 13/11/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
-
-
-/*
- *  XMLstringFromXPath.cpp
- *  XMLutils
- *
- *  Created by andrew on 7/11/07.
- *	based on http://xmlsoft.org/examples/xpath1.c
- *
- */
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
