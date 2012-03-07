@@ -53,18 +53,18 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	/* Wave for output of content*/
 	waveHndl outputWav;
 	char *waveName = "M_xmlcontent";
-	long numDimensions;
-	long dimensionSizes[MAX_DIMENSIONS + 1];
-	long olddimensionSizes[MAX_DIMENSIONS + 1];
-	long indices[MAX_DIMENSIONS + 1];
+	int numDimensions;
+	CountInt dimensionSizes[MAX_DIMENSIONS + 1];
+	CountInt olddimensionSizes[MAX_DIMENSIONS + 1];
+	CountInt indices[MAX_DIMENSIONS + 1];
 	memset(indices, 0, sizeof(indices));
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
 	
 	/* Wave for output of the node names associated with content */
 	waveHndl NODEoutputWav;
 	char *NODEwaveName = "W_xmlcontentnodes";
-	long NODEdimensionSizes[MAX_DIMENSIONS+1];
-	long NODEindices[MAX_DIMENSIONS+1];
+	CountInt NODEdimensionSizes[MAX_DIMENSIONS+1];
+	CountInt NODEindices[MAX_DIMENSIONS+1];
 	memset(NODEindices, 0, sizeof(NODEindices));
 	memset(NODEdimensionSizes, 0, sizeof(NODEdimensionSizes));
 	

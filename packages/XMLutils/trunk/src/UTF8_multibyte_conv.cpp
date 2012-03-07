@@ -11,7 +11,7 @@
 int UTF8toSystemEncoding(MemoryStruct *mem){
 	int err = 0;
 		
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	char *convBuffer = NULL;
 	CFStringRef str;
 
@@ -24,7 +24,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->append((void*) "\0", sizeof(char)) == -1){
+		if(mem->nullTerminate() == -1){
 			err = 1;
 			goto done;
 		}
@@ -82,7 +82,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	}
 #endif	
 	
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 	int len, len2;
 	wchar_t *convBuffer = NULL;
 	char *convBuffer2 = NULL;
@@ -179,7 +179,7 @@ done:
 int SystemEncodingToUTF8(MemoryStruct *mem){
 	int err = 0;
 	
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	char *convBuffer = NULL;
 	CFStringRef str;
 	if(mem == NULL)
@@ -191,7 +191,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	}
 
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->append((void*) "\0", sizeof(char)) == -1){
+		if(mem->nullTerminate() == -1){
 			err = 1;
 			goto done;
 		}
@@ -245,7 +245,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	}
 #endif	
 	
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 	int len, len2;
 	wchar_t *convBuffer = NULL;
 	char *convBuffer2 = NULL;
@@ -261,7 +261,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	}	
 	
 	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->append((void*) "\0", sizeof(char)) == -1){
+		if(mem->nullTerminate() == -1){
 			err = 1;
 			goto done;
 		}
@@ -329,7 +329,7 @@ done:
 		mem->reset();
 
 	if(!err && mem && mem->getMemSize() == 0)
-		if(mem->append((void*) "\0", sizeof(char)) == -1)
+		if(mem->nullTerminate() == -1)
 			err = 1;
 	
 	return err;

@@ -7,15 +7,15 @@ resource 'vers' (1) {						/* XOP version info */
 };
 
 resource 'vers' (2) {						/* Igor version info */
-	0x05, 0x04, release, 0x00, 0,			/* version bytes and country integer */
+	0x06, 0x00, release, 0x00, 0,			/* version bytes and country integer */
 	"5.04",
-	"(for Igor Pro 5.04 or later)"
+	"(for Igor Pro 6.00 or later)"
 };
 
 resource 'STR#' (1100) {					/* custom error messages */
 	{
 	//[1]
-	"XMLutils requires Igor Pro 5.04 or later.",
+	"XMLutils requires Igor Pro 6.00 or later.",
 	//[2]
 	"Error while parsing XML document",
 	//[3]

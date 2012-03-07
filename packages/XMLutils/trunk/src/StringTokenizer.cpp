@@ -31,7 +31,7 @@ typedef struct keyValuePairs {
 int keyValues(const char* STR, keyValuePairs &kvp, vector<string> &tokens, const char *valDelim,const char* pairDelim)
 {
 	int err = 0;
-	int ii = 0;
+	unsigned long ii = 0;
     // Skip delimiters at beginning.
 	string str(STR);
 	string valDelimStr(valDelim);

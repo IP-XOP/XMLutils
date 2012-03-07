@@ -53,7 +53,7 @@ XMLschemaValidate(XMLschemaValidateStruct *p){
 		goto done;
 		
 	//convert native Mac path to UNIX
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
 	if((isMAC = strstr(nativePath, macdelim)) && (err = HFSToPosixPath(nativePath, unixpath, 0)))
 		goto done;

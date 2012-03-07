@@ -25,13 +25,13 @@ register_namespaces(xmlXPathContextPtr xpathCtx, const xmlChar* nsList) {
     xmlChar* href = NULL;
     xmlChar* next = NULL;
 	
-/*example
-	xmlChar *prefix = (xmlChar*)("xrdml");
-	xmlChar *ns_uri = (xmlChar*)("http://www.xrdml.com/XRDMeasurement/1.0");
-	if( err = xmlXPathRegisterNs(xpathCtx,prefix, ns_uri));*/
-   
-
-
+	/*example
+	 xmlChar *prefix = (xmlChar*)("xrdml");
+	 xmlChar *ns_uri = (xmlChar*)("http://www.xrdml.com/XRDMeasurement/1.0");
+	 if( err = xmlXPathRegisterNs(xpathCtx,prefix, ns_uri));*/
+	
+	
+	
     nsListDup = xmlStrdup(nsList);
     if(nsListDup == NULL) {
 		err = FAILED_TO_REGISTER_NAMESPACE;
@@ -40,30 +40,30 @@ register_namespaces(xmlXPathContextPtr xpathCtx, const xmlChar* nsList) {
     
     next = nsListDup; 
     while(next != NULL) {
-	// skip spaces
-	while((*next) == ' ') next++;
-	if((*next) == '\0') break;
-
-	//find prefix
-	prefix = next;
-	next = (xmlChar*) xmlStrchr(next, '=');
-	if(next == NULL) {
-	    err = FAILED_TO_REGISTER_NAMESPACE;
-		goto done;
-	}
-	*(next++) = '\0';	
-	
-	// find href 
-	href = next;
-	next = (xmlChar*)xmlStrchr(next, ' ');
-	if(next != NULL) {
-	    *(next++) = '\0';	
-	}
-
-	// do register namespace
-	if(xmlXPathRegisterNs(xpathCtx, prefix, href) != 0) {
-	   err = FAILED_TO_REGISTER_NAMESPACE;
-	}
+		// skip spaces
+		while((*next) == ' ') next++;
+		if((*next) == '\0') break;
+		
+		//find prefix
+		prefix = next;
+		next = (xmlChar*) xmlStrchr(next, '=');
+		if(next == NULL) {
+			err = FAILED_TO_REGISTER_NAMESPACE;
+			goto done;
+		}
+		*(next++) = '\0';	
+		
+		// find href 
+		href = next;
+		next = (xmlChar*)xmlStrchr(next, ' ');
+		if(next != NULL) {
+			*(next++) = '\0';	
+		}
+		
+		// do register namespace
+		if(xmlXPathRegisterNs(xpathCtx, prefix, href) != 0) {
+			err = FAILED_TO_REGISTER_NAMESPACE;
+		}
     }
 	
 done:
@@ -98,12 +98,12 @@ execute_xpath_expression(xmlDoc *doc, xmlChar* xpathExpr, xmlChar* nsList, int *
 	xmlXPathCompExpr *comp = NULL;
 	
     /*
-	Create xpath evaluation context
-	*/
+	 Create xpath evaluation context
+	 */
     context = xmlXPathNewContext(doc);
     if(context == NULL) {
-       *err = XPATH_CONTEXT_CREATION_ERROR;
-	   goto done;
+		*err = XPATH_CONTEXT_CREATION_ERROR;
+		goto done;
     }
 	
     /* Register namespaces from list (if any) */
@@ -111,24 +111,24 @@ execute_xpath_expression(xmlDoc *doc, xmlChar* xpathExpr, xmlChar* nsList, int *
 		*err = FAILED_TO_REGISTER_NAMESPACE;
 		goto done;
     }
-
+	
 	/*
 	 compile xPath expression
-	by compiling we cutout any problems with weird expressions, hopefully!
-	*/
+	 by compiling we cutout any problems with weird expressions, hopefully!
+	 */
 	comp = xmlXPathCtxtCompile(context,xpathExpr);
     if(comp == NULL){
 		*err = XPATH_COMPILE_ERROR;
 		goto done;
 	}
-
+	
     /* Evaluate xpath expression */	
 	xpathObj = xmlXPathCompiledEval(comp, context);
     if(xpathObj == NULL) {
         *err = UNABLE_TO_EVAL_XPATH_EXPR;
 		goto done;
     }
-
+	
 done:
 	if(*err)
 		XOPNotice("XMLutils: Failure with XPath expression\r");

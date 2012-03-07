@@ -31,7 +31,7 @@ XMLdocDump(XMLdocDumpStruct *p){
 	string::size_type pos;
 	string newline("\n");
 	size_t found;
-	long message;
+	int message;
 	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){

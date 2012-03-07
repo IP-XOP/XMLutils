@@ -14,7 +14,7 @@
 #include "UTF8_multibyte_conv.h"
 
 //a utility that converts Mac paths to UNIX paths
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 int ConvertPath(const char * inPath, char * outPath, int outPathMaxLen) {
 	
 	CFStringRef inStr = CFStringCreateWithCString(kCFAllocatorDefault, inPath ,kCFStringEncodingMacRoman);
@@ -63,7 +63,7 @@ XMLopenFile(XMLopenFileStruct *p){
 	//	}
 	
 	//convert native Mac path to UNIX
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
 	if((isMAC = strstr(nativePath,macdelim)) && (err = HFSToPosixPath(nativePath,unixpath,0)))
 		goto done;
@@ -288,7 +288,7 @@ XMLcreateFile(XMLcreateFileStruct *p){
 		goto done;
 	
 	//convert native Mac path to UNIX
-#ifdef _MACINTOSH_
+#ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
 	if((isMAC = strstr(nativePath,macdelim)) && (err = HFSToPosixPath(nativePath,unixpath,0)))
 		goto done;
@@ -348,7 +348,6 @@ done:
 		if(nspace != NULL)
 			xmlFreeNs(nspace);
 	}
-	
 	DisposeHandle(p->prefix);
 	DisposeHandle(p->fileName);
 	DisposeHandle(p->rootelement);

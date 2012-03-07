@@ -2,19 +2,7 @@
 // *  XMLelementlist.cpp
 // *  XMLutils
 // *
-// *  Created by andrew on 6/11/07.
-// *  Copyright 2007 __MyCompanyName__. All rights reserved.
-// *
-// */
-// //
-//// 	try{
-////		pj = new MyComplex [nlayers+2];
-////	} catch(...){
-////		err = NOMEM;
-////		goto done;
-////	}
-////delete[] pj;	
-//	
+
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 
@@ -268,9 +256,9 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	
 	char *sep = ";";
 	char *sep1 = ":";
-	long dimensionSizes[MAX_DIMENSIONS+1];
-	long numDimensions = 0;
-	long indices[MAX_DIMENSIONS+1];
+	CountInt dimensionSizes[MAX_DIMENSIONS+1];
+	CountInt indices[MAX_DIMENSIONS+1];
+	int numDimensions = 0;
 	Handle pathName = NULL;
 
 	memset(indices, 0, sizeof(indices));
@@ -464,7 +452,7 @@ XMLelemlist(XMLelemlistStructPtr p){
 	waveHndl textWav = NULL;
 	char *textWavName = "W_ElementList";
 	int overwrite = 1;		//wave will always be overwritten
-	long dimensionSizes[MAX_DIMENSIONS + 1];	//used for MDMakeWave
+	CountInt dimensionSizes[MAX_DIMENSIONS + 1];	//used for MDMakeWave
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
 

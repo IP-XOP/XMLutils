@@ -24,7 +24,7 @@
 *TO DO:
 *Get rid of this bodge in the XPath when libxml2 is compileable again
 */
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 #define snprintf _snprintf
 #endif
 xmlChar* ARJNxmlGetNodePath(xmlNodePtr node);
@@ -37,7 +37,7 @@ typedef struct igorXMLfile {
 	xmlDoc *doc;
 }igorXMLfile, *igorXMLfilePtr;
 
-#ifdef _WINDOWS_
+#ifdef WINIGOR
 	double roundf(double val);
 #endif
 
@@ -46,8 +46,8 @@ in XMLelementlist.cpp
 */
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLelemlistStruct {
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLelemlistStruct, *XMLelemlistStructPtr;
 #pragma pack()
 int XMLelemlist(XMLelemlistStructPtr p);
@@ -63,7 +63,7 @@ typedef struct XMLstrFmXpathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;					//the fileID to load
+	double fileID;					//the fileID to load
 	Handle returnString;			//the string containing the content
 }XMLstrFmXpathStruct, *XMLstrFmXpathStructPtr;
 #pragma pack()
@@ -78,8 +78,8 @@ typedef struct XMLWaveXPathStruct {
 	Handle options;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;				//the filename to load
-	DOUBLE retval;					//retval
+	double fileID;				//the filename to load
+	double retval;					//retval
 }XMLWaveXPathStruct, *XMLWaveXPathStructPtr;
 #pragma pack()
 int XMLWaveFmXPath(XMLWaveXPathStructPtr);
@@ -90,8 +90,8 @@ typedef struct XMLsetNodeStrStruct {
 	Handle content;					//an options string
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;					//fileID
-	DOUBLE retval;					//retval
+	double fileID;					//fileID
+	double retval;					//retval
 }XMLsetNodeStrStruct, *XMLsetNodeStrStructPtr;
 #pragma pack()
 int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
@@ -101,8 +101,8 @@ int XMLsetNodeStr(XMLsetNodeStrStructPtr p);
 typedef struct XMLlistAttrStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;					//fileID
-	DOUBLE retval;					//retval
+	double fileID;					//fileID
+	double retval;					//retval
 }XMLlistAttrStruct, *XMLlistAttrStructPtr;
 #pragma pack()
 int XMLlistAttr(XMLlistAttrStructPtr p);
@@ -114,8 +114,8 @@ typedef struct XMLsetAttrStruct {
 	Handle attribute;
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;					//fileID
-	DOUBLE retval;					//retval
+	double	fileID;					//fileID
+	double retval;					//retval
 }XMLsetAttrStruct, *XMLsetAttrStructPtr;
 #pragma pack()
 int XMLsetAttr(XMLsetAttrStructPtr p);
@@ -124,24 +124,24 @@ int XMLsetAttr(XMLsetAttrStructPtr p);
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLopenFileStruct {
 	Handle fullFilePath;
-	DOUBLE retval;
+	double retval;
 }XMLopenFileStruct, *XMLopenFileStructPtr;
 #pragma pack()
 int XMLopenFile(XMLopenFileStruct *p);
 
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLcloseFileStruct {
-	DOUBLE toSave;
-	DOUBLE fileID;
-	DOUBLE retval;
+	double toSave;
+	double fileID;
+	double retval;
 }XMLcloseFileStruct, *XMLcloseFileStructPtr;
 #pragma pack()
 int XMLcloseFile(XMLcloseFileStruct *p);
 
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLfileSaveStruct {
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLfileSaveStruct, *XMLfileSaveStructPtr;
 #pragma pack()
 int XMLSAVEFILE(XMLfileSaveStruct *p);
@@ -152,7 +152,7 @@ typedef struct XMLcreateFileStruct {
 	Handle ns;
 	Handle rootelement;
 	Handle fileName;
-	DOUBLE fileID;
+	double fileID;
 }XMLcreateFileStruct, *XMLcreateFileStructPtr;
 #pragma pack()
 int XMLcreateFile(XMLcreateFileStruct *p);
@@ -160,13 +160,13 @@ int XMLcreateFile(XMLcreateFileStruct *p);
 /* in XMLchangeNodeStructure.cpp */
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLaddNodeStruct {
-	DOUBLE nodeType;
+	double nodeType;
 	Handle content;
 	Handle nodeName;
 	Handle ns;
 	Handle xPath;
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLaddNodeStruct, *XMLaddNodeStructPtr;
 #pragma pack()
 int XMLaddNode(XMLaddNodeStruct *);
@@ -175,8 +175,8 @@ int XMLaddNode(XMLaddNodeStruct *);
 typedef struct XMLdelNodeStruct {
 	Handle ns;
 	Handle xPath;
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLdelNodeStruct, *XMLdelNodeStructPtr;
 #pragma pack()
 int XMLdelNode(XMLdelNodeStruct *);
@@ -188,8 +188,8 @@ in XMLlistXPath.cpp
 typedef struct XMLlistXpathStruct {
 	Handle ns;						//a namespace to register
 	Handle xPath;					//the xpath
-	DOUBLE fileID;					//the fileID to load
-	DOUBLE retval;					//return value
+	double fileID;					//the fileID to load
+	double retval;					//return value
 }XMLlistXpathStruct, *XMLlistXpathStructPtr;
 #pragma pack()
 int XMLlistXPath(XMLlistXpathStructPtr p);
@@ -199,8 +199,8 @@ in XMLdumpDoc.cpp
 */
 #pragma pack(2)	// All structures passed to Igor are two-byte aligned.
 typedef struct XMLdocDumpStruct {
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLdocDumpStruct, *XMLdocDumpStructPtr;
 #pragma pack()
 int XMLdocDump(XMLdocDumpStruct *p);
@@ -211,8 +211,8 @@ int XMLdocDump(XMLdocDumpStruct *p);
 #pragma pack(2)	
 typedef struct XMLschemaValidateStruct {
 	Handle schemaFileName;
-	DOUBLE fileID;
-	DOUBLE retval;
+	double fileID;
+	double retval;
 }XMLschemaValidateStruct, *XMLschemaValidateStructPtr;
 #pragma pack()
 int XMLschemaValidate(XMLschemaValidateStruct *p);

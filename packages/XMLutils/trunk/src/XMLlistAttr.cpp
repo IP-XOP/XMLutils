@@ -38,11 +38,12 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 	waveHndl outputWav;
 	Handle transfer = NULL;
 	char *waveName = "M_listAttr";
-	long numDimensions;
-	long dimensionSizes[MAX_DIMENSIONS + 1];
-	long indices[MAX_DIMENSIONS + 1];
+	int numDimensions;
+	CountInt dimensionSizes[MAX_DIMENSIONS + 1];
+	CountInt indices[MAX_DIMENSIONS + 1];
 	memset(indices, 0, sizeof(indices));
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
+	
 	if(err = MDMakeWave(&outputWav,waveName,NULL,dimensionSizes,TEXT_WAVE_TYPE,1))
 		goto done;
 		/* Handle to transfer the string to the wave */
@@ -188,7 +189,7 @@ done:
 		   err == UNABLE_TO_EVAL_XPATH_EXPR){
 		err = 0;
 	}
-	 
+	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 
