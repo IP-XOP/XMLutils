@@ -186,7 +186,7 @@ XMLcloseFile(XMLcloseFileStruct *p){
 				} else {
 					xmlFreeDoc((allXMLfiles[fileID].doc));
 					tmpfileref = allXMLfiles[fileID].fileRef;
-					if(err = XOPCloseFile(tmpfileref));
+					err = XOPCloseFile(tmpfileref);
 					allXMLfiles.erase(fileID);
 				}
 			}
