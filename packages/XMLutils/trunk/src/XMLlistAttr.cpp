@@ -19,9 +19,7 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
 #include "UTF8_multibyte_conv.h"
 
 int 
@@ -32,7 +30,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 	xmlChar* xmlNodePath = NULL;
 	xmlChar* attrVal = NULL;
 	xmlAttr* properties = NULL;
-	MemoryStruct data;
+	string data;
 
 	/* Wave for output of content*/
 	waveHndl outputWav;
@@ -68,11 +66,9 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			xmlNodePath = NULL;
 			xmlNodePath = xmlGetNodePath(nodes->nodeTab[i]);
 			
-			if(data.reset(xmlNodePath, sizeof(xmlChar), xmlStrlen(xmlNodePath)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			data.assign((const char*)xmlNodePath, sizeof(xmlChar) * xmlStrlen(xmlNodePath));
+
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 			
 			if(xmlNodePath){
@@ -80,20 +76,19 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 				xmlNodePath = NULL;
 			}
 			
-			if(err = PutCStringInHandle((char*)data.getData(), transfer))
+			if(err = PutCStringInHandle((char*)data.c_str(), transfer))
 				goto done;
 			if(err = MDSetTextWavePointValue(outputWav, indices, transfer))
 				goto done;
 			
 			indices[1] = 1;
-			if(data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			
+			data.assign((const char*)properties->name, sizeof(xmlChar) * xmlStrlen(properties->name));
+
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 
-			if(err = PutCStringInHandle((char*)data.getData(), transfer))
+			if(err = PutCStringInHandle((char*)data.c_str(), transfer))
 				goto done;
 			if(err = MDSetTextWavePointValue(outputWav,indices, transfer))
 				goto done;
@@ -102,11 +97,9 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			attrVal = NULL;
 			attrVal = xmlGetProp(nodes->nodeTab[i], properties->name);
 
-			if(data.reset(attrVal, sizeof(xmlChar), xmlStrlen(attrVal)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			data.assign((const char*)attrVal, sizeof(xmlChar) * xmlStrlen(attrVal));
+			
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 			
 			if(attrVal){
@@ -114,7 +107,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 				attrVal = NULL;
 			}
 				
-			if(err = PutCStringInHandle((char*)data.getData(), transfer))
+			if(err = PutCStringInHandle((char*)data.c_str(), transfer))
 				goto done;
 			if(err = MDSetTextWavePointValue(outputWav, indices, transfer))
 				goto done;
@@ -143,25 +136,19 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	long fileID = -1;
 	
 	//the filename handle, Xpath handle,namespace handle,options handle
-	MemoryStruct xPath, ns;
+	string xPath, ns;
 				
 	if(p->xPath == NULL || p->ns == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
 
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 	   goto done;	
 	
 	fileID = (long)roundf(p->fileID);	
@@ -174,7 +161,7 @@ XMLlistAttr(XMLlistAttrStruct *p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.c_str(), BAD_CAST ns.c_str(), &err);
 	if(err)
 		goto done;
 	//and print it out to a handle

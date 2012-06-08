@@ -10,9 +10,7 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
 #include "UTF8_multibyte_conv.h"
 
 int 
@@ -21,8 +19,8 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 	int size;
     int i;
 	xmlChar *xmloutputBuf = NULL;
-	char *space = " ";
-	MemoryStruct data;
+	const char *space = " ";
+	string data;
 	
 	size = (nodes) ? nodes->nodeNr : 0;
     
@@ -46,23 +44,19 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 		
 		if(xmloutputBuf){
 			if(i)
-				if(data.append(space, sizeof(char))){
-					err = NOMEM;
-					goto done;
-				}
-			if(data.append(xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
-				err = NOMEM;
-				goto done;
-			}
+				data.append(space);
+
+			data.append((const char*) xmloutputBuf, sizeof(xmlChar) * xmlStrlen(xmloutputBuf));
+
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
 		}
 	}
 		
-	if(err = UTF8toSystemEncoding(&data))
+	if(err = UTF8toSystemEncoding(data))
 		goto done;
 	
-	if(err = PutCStringInHandle((char*) data.getData(), output))
+	if(err = PutCStringInHandle((char*) data.c_str(), output))
 		goto done;
 	
 done:
@@ -85,33 +79,21 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	xmlDoc *doc = NULL;
 
 	//the filename handle, Xpath handle,namespace handle,options handle
-	MemoryStruct xPath, ns, options;
+	string xPath, ns, options;
 	
 	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(options.append(*p->options, GetHandleSize(p->options)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(options.nullTerminate() == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	options.append(*p->options, GetHandleSize(p->options));
+	options.append("\0");
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
 		
 	//get a handle for the output
@@ -130,11 +112,11 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.c_str(), BAD_CAST ns.c_str(), &err);
 	if(err)
 		goto done;
 	//and print it out to a handle
-	err = print_xpath_nodes((allXMLfiles[p->fileID].doc), xpathObj->nodesetval, output);
+	err = print_xpath_nodes((allXMLfiles[(long)p->fileID].doc), xpathObj->nodesetval, output);
 
 	
 done:

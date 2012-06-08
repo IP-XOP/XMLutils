@@ -8,9 +8,8 @@
  */
 
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
+
 #include "UTF8_multibyte_conv.h"
 
 /*
@@ -157,7 +156,7 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	
 	//the fileID, Xpath handle,namespace handle,options handle
 	long fileID = -1;
-	MemoryStruct xPath, ns, nodeName, content;
+	string xPath, ns, nodeName, content;
 	
 	int nodeType = -1;
 	
@@ -167,34 +166,22 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, sizeof(char), GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, sizeof(char), GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(nodeName.append(*p->nodeName, sizeof(char), GetHandleSize(p->nodeName)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(content.append(*p->content, sizeof(char), GetHandleSize(p->content)) == -1){
-	    err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	nodeName.append(*p->nodeName, GetHandleSize(p->nodeName));
+	content.append(*p->content, GetHandleSize(p->content));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
-	if(err = SystemEncodingToUTF8(&nodeName))
+	if(err = SystemEncodingToUTF8(nodeName))
 		goto done;
-	if(err = SystemEncodingToUTF8(&content))
+	if(err = SystemEncodingToUTF8(content))
 		goto done;
 	
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST nodeName.getData() , 0) != 0){
+	if(xmlValidateName(BAD_CAST nodeName.c_str() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
@@ -212,11 +199,11 @@ int XMLaddNode(XMLaddNodeStruct *p){
 	
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.c_str(), (xmlChar*) ns.c_str(), &err); 
 	if(err)
 		goto done;
 	
-	if(err = add_nodes(xpathObj, BAD_CAST nodeName.getData(), BAD_CAST ns.getData(), nodeType, BAD_CAST content.getData()))
+	if(err = add_nodes(xpathObj, BAD_CAST nodeName.c_str(), BAD_CAST ns.c_str(), nodeType, BAD_CAST content.c_str()))
 		goto done;
 	
 done:
@@ -266,7 +253,7 @@ int XMLdelNode(XMLdelNodeStruct *p){
 	xmlXPathObjectPtr xpathObj = NULL; 
 	xmlDocPtr doc = NULL;
 	
-	MemoryStruct xPath, ns;
+	string xPath, ns;
 	
 	//the fileID, Xpath handle,namespace handle,options handle
 	long fileID = -1;
@@ -277,18 +264,12 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
 	
 	
@@ -298,12 +279,12 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
+		doc = (allXMLfiles[(long) p->fileID].doc);
 	}
 	
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.c_str(), (xmlChar*) ns.c_str(), &err); 
 	if(err)
 		goto done;
 	

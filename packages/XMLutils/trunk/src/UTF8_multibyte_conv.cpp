@@ -1,37 +1,29 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "UTF8_multibyte_conv.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+
 
 //all the internal libxml2 entries are contained as UTF8.  This function takes a MemoryStruct object containing a UTF8 
 //string and converts it to the system encoding.  The replacement is then returned in the MemoryStruct object.
 //input should be NULL terminated, result IS NULL terminated.
-int UTF8toSystemEncoding(MemoryStruct *mem){
+int UTF8toSystemEncoding(string mem){
 	int err = 0;
 		
 #ifdef MACIGOR
 	char *convBuffer = NULL;
 	CFStringRef str;
 
-	if(mem == NULL)
-		goto done;
-	
-	if(mem->getMemSize() == 0){
-		mem->reset();
+	if(mem.size() == 0){
+		mem.clear();
 		goto done;
 	}	
 	
-	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->nullTerminate() == -1){
-			err = 1;
-			goto done;
-		}
-
-	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), kCFStringEncodingUTF8, 0);
+	if(mem.data()[mem.size() - 1] != '\0')
+	   mem.append("\0");
+	   
+	str = CFStringCreateWithBytes(NULL, (UInt8*)mem.data(), mem.size(), kCFStringEncodingUTF8, 0);
 	
-	mem->reset();
+	mem.clear();
 	
 	if(str){
 		CFIndex numChars;
@@ -69,11 +61,7 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 										sizeof(char) * usedBufLen,
 										&usedBufLen);
 			
-			if(mem->append(convBuffer, sizeof(char), usedBufLen + 1) == -1){
-				err = 1;
-				CFRelease(str);
-				goto done;
-			}
+			mem.append(convBuffer, usedBufLen + 1);
 			
 			if(convBuffer)
 				free(convBuffer);
@@ -89,22 +77,16 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	
 	static int defaultANSICodePage = 0;
 	
-	if(mem == NULL)
-		goto done;
-	
-	if(mem->getMemSize() == 0){
-		mem->reset();
+	if(mem.size() == 0){
+		mem.clear();
 		goto done;
 	}	
 	
-	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->append((void*) "\0", sizeof(char)) == -1){
-			err = 1;
-			goto done;
-		}
+	if(mem.data()[mem.size() - 1] != '\0')
+		mem.append("\0");
 	
 	//have to have an intermediate step of converting to UTF-16
-	len = MultiByteToWideChar(CP_UTF8, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
+	len = MultiByteToWideChar(CP_UTF8, 0, (const char*) mem.data(), mem.size(), NULL, 0);
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
@@ -114,14 +96,14 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	} else
 		goto done;
 	
-	if(MultiByteToWideChar(CP_UTF8, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
-		mem->reset();
+	if(MultiByteToWideChar(CP_UTF8, 0, (const char*) mem.data(), mem.size(), convBuffer, len) == 0){
+		mem.clear();
 		if(convBuffer)
 			free(convBuffer);
 		goto done;
 	}
 	
-	mem->reset();
+	mem.clear();
 
 	/*	We have no way to know what code page is needed to represent the Unicode text
 	 as multi-byte text. Therefore, we use the system default ANSI code page.
@@ -151,12 +133,8 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		if(mem->append(convBuffer2, sizeof(char), len2 + 1) == -1){
-			err = 1;
-			if(convBuffer2)
-				free(convBuffer2);
-			goto done;
-		}
+		mem.append(convBuffer2, len2 + 1);
+
 		if(convBuffer2)
 			free(convBuffer2);
 	}
@@ -166,39 +144,31 @@ int UTF8toSystemEncoding(MemoryStruct *mem){
 	
 done:
 	if(err)
-		mem->reset();
+		mem.clear();
 	
-	if(!err && mem && mem->getMemSize() == 0)
-		if(mem->append((void*) "\0", sizeof(char)) == -1)
-			err = 1;
+	if(!err && mem.size() == 0)
+		mem.append("\0");
 	
 	return err;
 }
 
 
-int SystemEncodingToUTF8(MemoryStruct *mem){
+int SystemEncodingToUTF8(string mem){
 	int err = 0;
 	
 #ifdef MACIGOR
 	char *convBuffer = NULL;
 	CFStringRef str;
-	if(mem == NULL)
-		goto done;
 
-	if(mem->getMemSize() == 0){
-		mem->reset();
-		goto done;
-	}
+	if(mem.size() == 0)
+		mem.clear();
 
-	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->nullTerminate() == -1){
-			err = 1;
-			goto done;
-		}
+	if(mem.data()[mem.size() - 1] != '\0')
+		mem.append("\0");
 	
-	str = CFStringCreateWithBytes(NULL, (UInt8*)mem->getData(), strlen((const char*) mem->getData()), CFStringGetSystemEncoding(), 0);
+	str = CFStringCreateWithBytes(NULL, (UInt8*)mem.data(), mem.size(), CFStringGetSystemEncoding(), 0);
 	
-	mem->reset();
+	mem.clear();
 	
 	if(str){
 		CFIndex numChars;
@@ -231,12 +201,7 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 										sizeof(char) * usedBufLen,
 										&usedBufLen);
 			
-			if(mem->append(convBuffer, sizeof(char), usedBufLen + 1) == -1){
-				err = 1;
-				if(convBuffer)
-					free(convBuffer);
-				goto done;
-			}
+			mem.append(convBuffer, usedBufLen + 1);
 			
 			if(convBuffer)
 				free(convBuffer);
@@ -252,25 +217,17 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	
 	static int defaultANSICodePage = 0;
 	
-	if(mem == NULL)
-		goto done;
+	if(mem.size() == 0)
+		mem.clear();
 	
-	if(mem->getMemSize() == 0){
-		mem->reset();
-		goto done;
-	}	
-	
-	if((mem->getData())[mem->getMemSize() - 1] != '\0')
-		if(mem->nullTerminate() == -1){
-			err = 1;
-			goto done;
-		}
+	if(mem.data()[mem.size() - 1] != '\0')
+		mem.append("\0");
 	
 	if (defaultANSICodePage == 0)			// Did not determine code page yet?
 		defaultANSICodePage = GetACP();
 	
 	//have to have an intermediate step of converting to UTF-16
-	len = MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), NULL, 0);
+	len = MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem.data(), mem.size(), NULL, 0);
 	if(len){
 		convBuffer = (wchar_t*) malloc(len * sizeof(wchar_t));
 		if(convBuffer == NULL){
@@ -280,14 +237,14 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	} else
 		goto done;
 	
-	if(MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem->getData(), (size_t) strlen((const char*) mem->getData()), convBuffer, len) == 0){
-		mem->reset();
+	if(MultiByteToWideChar(defaultANSICodePage, 0, (const char*) mem.data(), mem.size(), convBuffer, len) == 0){
+		mem.clear();
 		if(convBuffer)
 			free(convBuffer);
 		goto done;
 	}
 	
-	mem->reset();
+	mem.clear();
 	
 	//UTF-8 codepage is 65001.
 	len2 = WideCharToMultiByte(65001, 0, convBuffer, len, NULL, 0, NULL, NULL);
@@ -311,12 +268,8 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	} else {
 		if(convBuffer)
 			free(convBuffer);
-		if(mem->append(convBuffer2, sizeof(char), len2 + 1) == -1){
-			err = 1;
-			if(convBuffer2)
-				free(convBuffer2);
-			goto done;
-		}
+		mem.append(convBuffer2, len2 + 1);
+
 		if(convBuffer2)
 			free(convBuffer2);
 	}
@@ -326,11 +279,10 @@ int SystemEncodingToUTF8(MemoryStruct *mem){
 	
 done:
 	if(err)
-		mem->reset();
+		mem.clear();
 
-	if(!err && mem && mem->getMemSize() == 0)
-		if(mem->nullTerminate() == -1)
-			err = 1;
+	if(!err && mem.size() == 0)
+		mem.append("\0");
 	
 	return err;
 }

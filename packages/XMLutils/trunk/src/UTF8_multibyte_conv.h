@@ -1,7 +1,6 @@
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
 
+#include <string>
+using namespace std;
 /*
  these functions convert between UTF8 and default system encoding.
  conversion is done in-place.
@@ -14,5 +13,5 @@
  0 = SUCCESS
  1 = NO MEMORY
  */
-int UTF8toSystemEncoding(MemoryStruct *mem);
-int SystemEncodingToUTF8(MemoryStruct *mem);
+int UTF8toSystemEncoding(string mem);
+int SystemEncodingToUTF8(string mem);

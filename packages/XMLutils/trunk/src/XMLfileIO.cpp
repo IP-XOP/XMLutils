@@ -8,9 +8,7 @@
  */
 
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
 #include "UTF8_multibyte_conv.h"
 
 //a utility that converts Mac paths to UNIX paths
@@ -213,8 +211,8 @@ XMLSAVEFILE(XMLfileSaveStruct *p){
 		err = FILEID_DOESNT_EXIST;
 		goto done;
 	} else {
-		doc = (allXMLfiles[p->fileID].doc);
-		fileName = (char*) allXMLfiles[p->fileID].fileNameStr;
+		doc = (allXMLfiles[(long) p->fileID].doc);
+		fileName = (char*) allXMLfiles[(long) p->fileID].fileNameStr;
 	}
 	
 	xmlIndentTreeOutput = 1;
@@ -249,7 +247,7 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	xmlDoc *doc = NULL;
 	xmlNode *root_element= NULL ;
 	xmlNs *nspace = NULL;
-	MemoryStruct rootname, ns, prefix;
+	string rootname, ns, prefix;
 		
 	extern std::map<long,igorXMLfile> allXMLfiles;
 	
@@ -261,24 +259,15 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//allocate space for the C-strings.
-	if(rootname.append(*p->rootelement, GetHandleSize(p->rootelement)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(prefix.append(*p->prefix, GetHandleSize(p->prefix)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	rootname.append(*p->rootelement, GetHandleSize(p->rootelement));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	prefix.append(*p->prefix, GetHandleSize(p->prefix));
 	
-	if(err = SystemEncodingToUTF8(&rootname))
+	if(err = SystemEncodingToUTF8(rootname))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
-	if(err = SystemEncodingToUTF8(&prefix))
+	if(err = SystemEncodingToUTF8(prefix))
 		goto done;
 	
 	if(err = GetCStringFromHandle(p->fileName, fullFilePath, MAX_PATH_LEN))
@@ -304,23 +293,23 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST rootname.getData() , 0) != 0){
+	if(xmlValidateName(BAD_CAST rootname.c_str() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
 	
 	//create the root element
-	root_element = xmlNewNode(NULL , BAD_CAST rootname.getData());
+	root_element = xmlNewNode(NULL , BAD_CAST rootname.c_str());
 	if(root_element == NULL){
 		err = COULDNT_CREATE_NODE;
 		goto done;
 	}
 	
-	if(prefix.getMemSize() && strlen((const char*) prefix.getData()) > 0){
-		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), BAD_CAST prefix.getData() );
+	if(prefix.size() && strlen((const char*) prefix.c_str()) > 0){
+		nspace = xmlNewNs(root_element, BAD_CAST ns.c_str(), BAD_CAST prefix.c_str() );
 		root_element->ns = nspace;
-	} else if (ns.getMemSize() && strlen((const char*) ns.getData())) {
-		nspace = xmlNewNs(root_element, BAD_CAST ns.getData(), NULL );
+	} else if (ns.size() && strlen((const char*) ns.c_str())) {
+		nspace = xmlNewNs(root_element, BAD_CAST ns.c_str(), NULL );
 	}
 	
 	root_element = xmlDocSetRootElement(doc, root_element);

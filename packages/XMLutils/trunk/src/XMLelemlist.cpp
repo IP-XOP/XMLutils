@@ -5,10 +5,7 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
-
-#ifdef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
 #include "UTF8_multibyte_conv.h"
 
 
@@ -250,7 +247,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	int err = 0;
     xmlNode *cur_node = NULL;
 	xmlChar *path = NULL;
-	MemoryStruct data;
+	string data;
 	
 	xmlAttr* properties = NULL;
 	
@@ -276,11 +273,9 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				goto done;
 			path = ARJNxmlGetNodePath(cur_node);//xmlGetNodePath(cur_node);
 			
-			if(data.reset(path, sizeof(xmlChar), xmlStrlen(path)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			data.assign((const char*) path, sizeof(xmlChar) * xmlStrlen(path));
+
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 			
 			if(err = MDGetWaveDimensions(textWav, &numDimensions, dimensionSizes))
@@ -293,7 +288,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(err = MDChangeWave(textWav, -1, dimensionSizes))
 				goto done;
 			
-			if(err = PutCStringInHandle((char*)data.getData(), pathName))
+			if(err = PutCStringInHandle((char*)data.c_str(), pathName))
 				goto done;
 			
 			indices[0] = dimensionSizes[0] - 1;
@@ -311,14 +306,12 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			if(MemError())
 				goto done;	
 			
-			if(data.reset((void*) cur_node->name, sizeof(xmlChar), xmlStrlen(cur_node->name)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			data.assign((const char*) cur_node->name, sizeof(xmlChar) * xmlStrlen(cur_node->name));
+
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 			
-			if(err = PutCStringInHandle((char*) data.getData(), pathName))
+			if(err = PutCStringInHandle((char*) data.c_str(), pathName))
 				goto done;			
 			indices[1] = 3;
 			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
@@ -331,27 +324,22 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 					goto done;
 				
 				if(cur_node->ns->prefix != NULL && xmlStrlen(cur_node->ns->prefix) > 0){
-					if(data.reset((void*) cur_node->ns->prefix, sizeof(xmlChar), xmlStrlen(cur_node->ns->prefix)) == -1){
-						err = NOMEM;
-						goto done;
-					}
-					if(err = UTF8toSystemEncoding(&data))
+					data.assign((const char*) cur_node->ns->prefix, sizeof(xmlChar) * xmlStrlen(cur_node->ns->prefix));
+
+					if(err = UTF8toSystemEncoding(data))
 						goto done;
 					
-					if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
+					if(err = PtrAndHand((void*) data.c_str(), pathName, data.size()))
 						goto done;
 					if(err = PtrAndHand((void*) "=", pathName, sizeof(char)))
 						goto done;
 				}
+				data.assign((const char*) cur_node->ns->href, sizeof(xmlChar) * xmlStrlen(cur_node->ns->href));
 				
-				if(data.reset((void*) cur_node->ns->href, sizeof(xmlChar), xmlStrlen(cur_node->ns->href)) == -1){
-					err = NOMEM;
-					goto done;
-				}
-				if(err = UTF8toSystemEncoding(&data))
+				if(err = UTF8toSystemEncoding(data))
 					goto done;
 				
-				if(err = PtrAndHand((char*) data.getData(), pathName, sizeof(char) * strlen((char*) data.getData())))
+				if(err = PtrAndHand((char*) data.data(), pathName, data.size()))
 					goto done;					
 				
 				indices[1] = 1;
@@ -368,30 +356,27 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 			for(properties = cur_node->properties ; properties != NULL ; properties = properties->next){
 				xmlChar *attributeProp = NULL;
 				
-				if(data.reset((void*) properties->name, sizeof(xmlChar), xmlStrlen(properties->name)) == -1){
-					err = NOMEM;
-					goto done;
-				}
-				if(err = UTF8toSystemEncoding(&data))
+				data.assign((const char*) properties->name, sizeof(xmlChar) * xmlStrlen(properties->name));
+
+				if(err = UTF8toSystemEncoding(data))
 					goto done;
 				
-				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
+				if(err = PtrAndHand((char*)data.data(), pathName, data.size()))
 					goto done;
 				if(err = PtrAndHand(sep1, pathName, sizeof(char) * strlen(sep1)))
 					goto done;	
 				
 				attributeProp = xmlGetProp(cur_node, properties->name);
-				if(data.reset(attributeProp, sizeof(xmlChar), xmlStrlen(attributeProp)) == -1){
-					err = NOMEM;
-					goto done;
-				}
+
+				data.assign((const char*) attributeProp, sizeof(xmlChar) * xmlStrlen(attributeProp));
+
 				if(attributeProp)
 					xmlFree(attributeProp);
 				
-				if(err = UTF8toSystemEncoding(&data))
+				if(err = UTF8toSystemEncoding(data))
 					goto done;
 				
-				if(err = PtrAndHand((char*)data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
+				if(err = PtrAndHand((char*)data.data(), pathName, data.size()))
 					goto done;
 				if(err = PtrAndHand(sep, pathName, sizeof(char) * strlen(sep)))
 					goto done;

@@ -8,9 +8,6 @@
  */
 
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
 #include "UTF8_multibyte_conv.h"
 #include <libxml/xmlschemas.h>
 
