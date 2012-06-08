@@ -18,9 +18,7 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+
 #include "UTF8_multibyte_conv.h"
 #include "StringTokenizer.h"
 #include <vector>
@@ -35,7 +33,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	Handle transfer = NULL;
 
 	xmlChar* xmloutputBuf = NULL;
-	MemoryStruct data;
+	string data;
 	vector<string> tokenizedOutput;
 	
 	//delimiter is going to be used in the string tokenizer
@@ -70,7 +68,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	
 	//make the output textwave	
 	if(numNodes > 1)
-		dimensionSizes[1] = numNodes;
+		dimensionSizes[1] = (CountInt) numNodes;
 	if(err = MDMakeWave(&outputWav, waveName, NULL, dimensionSizes, TEXT_WAVE_TYPE, 1))
 		goto done;
 		
@@ -97,12 +95,10 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		NODEindices[0] = j;
 
 		xmloutputBuf = xmlGetNodePath(xpathObj->nodesetval->nodeTab[j]);
-		if(data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
-			err = NOMEM;
-			goto done;
-		}
 		
-		if(err = UTF8toSystemEncoding(&data))
+		data.assign((const char*) xmloutputBuf, xmlStrlen(xmloutputBuf) * sizeof(xmlChar));
+		
+		if(err = UTF8toSystemEncoding(data))
 			goto done;
 		
 		if(xmloutputBuf != NULL){
@@ -110,7 +106,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 			xmloutputBuf = NULL;
 		}
 		
-		if(err = PutCStringInHandle((char*)data.getData(), transfer))
+		if(err = PutCStringInHandle(data.c_str(), transfer))
 			goto done;		
 		if(err = MDSetTextWavePointValue(NODEoutputWav, NODEindices, transfer))
 			goto done;
@@ -131,11 +127,9 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 				break;
 		}
 
-		if(data.reset((void*) xmloutputBuf, sizeof(xmlChar), xmlStrlen(xmloutputBuf)) == -1){
-			err = NOMEM;
-			goto done;
-		}
-		if(err = UTF8toSystemEncoding(&data))
+		data.assign((const char*) xmloutputBuf, xmlStrlen(xmloutputBuf) * sizeof(xmlChar));
+		
+		if(err = UTF8toSystemEncoding(data))
 			goto done;
 		
 		if(xmloutputBuf != NULL){
@@ -143,7 +137,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 			xmloutputBuf = NULL;
 		}
 		
-		Tokenize(data.getData(), strlen((char*)data.getData()), tokenizedOutput, delimiter, strlen(delimiter));
+		Tokenize((const unsigned char*) data.data(), data.size(), tokenizedOutput, delimiter, strlen(delimiter));
 		
 		if(tokenizedOutput.size() > olddimensionSizes[0]){
 			dimensionSizes[0] = tokenizedOutput.size();
@@ -187,7 +181,7 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 
 	//the fileID, Xpath handle,namespace handle,options handle
 	long fileID = -1;
-	MemoryStruct xPath, ns, options;
+	string xPath, ns, options;
 	
 	/* check if any of the argument string handles are null */
 	if(p->xPath == NULL || p->ns == NULL || p->options == NULL){
@@ -195,26 +189,13 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(options.append(*p->options, GetHandleSize(p->options)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(options.nullTerminate() == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	options.append(*p->options, GetHandleSize(p->options));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
 
 	fileID = (long)roundf(p->fileID);	
@@ -228,11 +209,11 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
  
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.c_str(), (xmlChar*) ns.c_str(), &err); 
 	if(err)
 		goto done;
 
-	if(err = outputXPathObjIntoWave(doc, xpathObj, (char*) options.getData()))
+	if(err = outputXPathObjIntoWave(doc, xpathObj, (char*) options.c_str()))
 		goto done;
 		
 done:

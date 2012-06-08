@@ -8,9 +8,6 @@
  */
 
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
 #include "UTF8_multibyte_conv.h"
 
 /**
@@ -84,7 +81,7 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	xmlDocPtr doc = NULL;
 
 	//Xpath handle,namespace handle,options handle
-	MemoryStruct xPath, ns, content;
+	string xPath, ns, content;
 	
 	/* check if any of the argument string handles are null */
 	if(p->xPath == NULL || p->ns == NULL || p->content == NULL){
@@ -92,24 +89,15 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(content.append(*p->content, GetHandleSize(p->content)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	content.append(*p->content, GetHandleSize(p->content));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
-	if(err = SystemEncodingToUTF8(&content))
+	if(err = SystemEncodingToUTF8(content))
 		goto done;
 	
 	fileID = (long)roundf(p->fileID);	
@@ -123,11 +111,11 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 	
 	//execute Xpath expression
 	//for some reason the xpathObj doesn't like being passed as a pointer argument, therefore return it as a result.
-	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.getData(), (xmlChar*) ns.getData(), &err); 
+	xpathObj = execute_xpath_expression(doc, (xmlChar*) xPath.c_str(), (xmlChar*) ns.c_str(), &err); 
 	if(err)
 		goto done;
 	
-	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content.getData()))
+	if(err = update_xpath_nodes(xpathObj->nodesetval, (xmlChar*) content.c_str()))
 		goto done;
 			
 done:

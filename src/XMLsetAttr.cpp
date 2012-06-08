@@ -1,9 +1,7 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+
 #include "UTF8_multibyte_conv.h"
 
 int 
@@ -40,40 +38,28 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	xmlDoc *doc = NULL;
 	
 	//Xpath handle,namespace handle,options handle
-	MemoryStruct xPath, ns, attribute, value;
+	string xPath, ns, attribute, value;
 	
 	if(p->xPath == NULL || p->ns == NULL || p->attribute == NULL || p->val == NULL){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(attribute.append(*p->attribute, GetHandleSize(p->attribute)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-	if(value.append(*p->val, GetHandleSize(p->val)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
+	attribute.append(*p->attribute, GetHandleSize(p->attribute));
+	value.append(*p->val, GetHandleSize(p->val));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
-	if(err = SystemEncodingToUTF8(&attribute))
+	if(err = SystemEncodingToUTF8(attribute))
 		goto done;
-	if(err = SystemEncodingToUTF8(&value))
+	if(err = SystemEncodingToUTF8(value))
 	   goto done;
 	
 	//check if the node name is invalid
-	if(xmlValidateName(BAD_CAST attribute.getData() , 0) != 0){
+	if(xmlValidateName(BAD_CAST attribute.c_str() , 0) != 0){
 		err = INVALID_NODE_NAME;
 		goto done;
 	}
@@ -88,11 +74,11 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.c_str(), BAD_CAST ns.c_str(), &err);
 	if(err)
 		goto done;
 	
-	if(err =set_attr(doc, xpathObj->nodesetval, (char*) attribute.getData(), (char*) value.getData()))
+	if(err =set_attr(doc, xpathObj->nodesetval, (char*) attribute.c_str(), (char*) value.c_str()))
 		goto done;
 	
 done:

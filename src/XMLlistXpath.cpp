@@ -8,9 +8,7 @@
  */
 
 #include "XMLutils.h"
-#ifndef HAVE_MEMUTILS
-#include "memutils.h"
-#endif
+#include <string>
 #include "UTF8_multibyte_conv.h"
 
 static int
@@ -30,7 +28,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 	CountInt indices[MAX_DIMENSIONS+1];
 	int numDimensions = 0;
 	int size = 0;
-	MemoryStruct data;
+	string data;
 	Handle pathName = NULL;
 
 	memset(indices, 0, sizeof(indices));
@@ -65,18 +63,16 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 			if(err = MDChangeWave(textWav, -1, dimensionSizes))
 				goto done;
 				
-			if(data.reset(path, sizeof(xmlChar), xmlStrlen(path)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+			data.assign((const char*) path, sizeof(xmlChar)* xmlStrlen(path));
+			
+			if(err = UTF8toSystemEncoding(data))
 				goto done;
 			if(path != NULL){
 				xmlFree(path);
 				path = NULL;
 			}
 		
-			if(err = PutCStringInHandle((char*)data.getData(), pathName))
+			if(err = PutCStringInHandle((char*)data.c_str(), pathName))
 				goto done;
 		
 			indices[0] = dimensionSizes[0] - 1;
@@ -90,40 +86,33 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 					
 			if(nodesetval->nodeTab[ii]->ns != NULL && nodesetval->nodeTab[ii]->ns->href != NULL){
 				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix) > 0){
-					if(data.reset((void*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar), strlen((char*)nodesetval->nodeTab[ii]->ns->prefix)) == -1){
-						err = NOMEM;
-						goto done;
-					}
-					if(err = UTF8toSystemEncoding(&data))
+					data.assign((const char*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar) * strlen((char*)nodesetval->nodeTab[ii]->ns->prefix));
+
+					if(err = UTF8toSystemEncoding(data))
 						goto done;
 					
-					if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
+					if(err = PtrAndHand((void*) data.data(), pathName, data.size()))
 						goto done;
 					if(err = PtrAndHand((char*)"=", pathName, sizeof(char)))
 						goto done;
 				}
-				if(data.reset((void*)nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->ns->href)) == -1){
-					err = NOMEM;
-					goto done;
-				}
-				if(err = UTF8toSystemEncoding(&data))
+				
+				data.assign((const char*) nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar) * xmlStrlen(nodesetval->nodeTab[ii]->ns->href));
+				if(err = UTF8toSystemEncoding(data))
 					goto done;
 				
-				if(err = PtrAndHand((void*) data.getData(), pathName, sizeof(char) * strlen((char*)data.getData())))
+				if(err = PtrAndHand((void*) data.data(), pathName, data.size()))
 					goto done;					
 				indices[1] = 1;
 				if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 					goto done;
 			}
-			
-			if(data.reset((void*) nodesetval->nodeTab[ii]->name, sizeof(xmlChar), xmlStrlen(nodesetval->nodeTab[ii]->name)) == -1){
-				err = NOMEM;
-				goto done;
-			}
-			if(err = UTF8toSystemEncoding(&data))
+		data.assign((const char*) nodesetval->nodeTab[ii]->name, sizeof(xmlChar) * xmlStrlen(nodesetval->nodeTab[ii]->name));
+
+		if(err = UTF8toSystemEncoding(data))
 				goto done;
 		
-			if(err = PutCStringInHandle((char*) data.getData(), pathName))
+			if(err = PutCStringInHandle((char*) data.c_str(), pathName))
 				goto done;
 			indices[1] = 2;
 			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
@@ -149,7 +138,7 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	long fileID = -1;
 	xmlXPathObject *xpathObj = NULL; 
 	xmlDoc *doc = NULL;
-	MemoryStruct xPath, ns;
+	string xPath, ns;
 
 	//the filename handle, Xpath handle,namespace handle,options handle	
 	if(p->xPath == NULL || p->ns == NULL){
@@ -157,18 +146,12 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 		goto done;
 	}
 	
-	if(xPath.append(*p->xPath, GetHandleSize(p->xPath)) == -1){
-		err = NOMEM;
-		goto done;
-	}
-    if(ns.append(*p->ns, GetHandleSize(p->ns)) == -1){
-		err = NOMEM;
-		goto done;
-	}
+	xPath.append(*p->xPath, GetHandleSize(p->xPath));
+	ns.append(*p->ns, GetHandleSize(p->ns));
 	
-	if(err = SystemEncodingToUTF8(&xPath))
+	if(err = SystemEncodingToUTF8(xPath))
 		goto done;
-	if(err = SystemEncodingToUTF8(&ns))
+	if(err = SystemEncodingToUTF8(ns))
 		goto done;
 			  
 	fileID = (long)roundf(p->fileID);	
@@ -181,7 +164,7 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 	}
 	
 	//execute Xpath expression
-	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.getData(), BAD_CAST ns.getData(), &err);
+	xpathObj = execute_xpath_expression(doc, BAD_CAST xPath.c_str(), BAD_CAST ns.c_str(), &err);
 	if(err)
 		goto done;
 	//and print it out to a handle
