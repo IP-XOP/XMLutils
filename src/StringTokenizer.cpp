@@ -1,26 +1,35 @@
+#include "XOPStandardHeaders.h"
 #include "StringTokenizer.h"
-#include <map>
-#include <algorithm>
 
-void Tokenize(const unsigned char* STR, size_t szStr, vector<string> &tokens, const char* DELIMITERS, int szDELIMITERS)
+
+void Tokenize(const unsigned char* STR, size_t szStr, vector<string> &tokens, vector<PSInt> &tokenSizes, size_t *szTotalTokens, const char* DELIMITERS, int szDELIMITERS)
 {
     // Skip delimiters at beginning.
 	string str((const char*)STR, szStr);
+	string temp;
 	string delimiters(DELIMITERS,szDELIMITERS);		//WARNING, DELIMITERS ISNT NULL TERMINATED
 		
-		string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-		// Find first "non-delimiter".
-		string::size_type pos     = str.find_first_of(delimiters, lastPos);
-		
-		while (string::npos != pos || string::npos != lastPos)
-		{
-			// Found a token, add it to the vector.
-			tokens.push_back(str.substr(lastPos, pos - lastPos));
-			// Skip delimiters.  Note the "not_of"
-			lastPos = str.find_first_not_of(delimiters, pos);
-			// Find next "non-delimiter"
-			pos = str.find_first_of(delimiters, lastPos);
-		}
+	*szTotalTokens = 0;
+	
+	tokens.clear();
+	tokenSizes.clear();
+	
+	string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+	// Find first "non-delimiter".
+	string::size_type pos     = str.find_first_of(delimiters, lastPos);
+	
+	while (string::npos != pos || string::npos != lastPos)
+	{
+		temp = str.substr(lastPos, pos - lastPos);
+		// Found a token, add it to the vector.
+		tokens.push_back(temp);
+		tokenSizes.push_back(temp.length());
+		*szTotalTokens += temp.length();
+		// Skip delimiters.  Note the "not_of"
+		lastPos = str.find_first_not_of(delimiters, pos);
+		// Find next "non-delimiter"
+		pos = str.find_first_of(delimiters, lastPos);
+	}
 }
 
 typedef struct keyValuePairs {
@@ -31,7 +40,7 @@ typedef struct keyValuePairs {
 int keyValues(const char* STR, keyValuePairs &kvp, vector<string> &tokens, const char *valDelim,const char* pairDelim)
 {
 	int err = 0;
-	unsigned long ii = 0;
+	unsigned int ii = 0;
     // Skip delimiters at beginning.
 	string str(STR);
 	string valDelimStr(valDelim);

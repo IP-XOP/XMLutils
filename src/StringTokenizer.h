@@ -6,10 +6,12 @@
  *  Copyright 2008 __MyCompanyName__. All rights reserved.
  *
  */
-
+#include <map>
+#include <algorithm>
 #include <vector>
 #include <string>
 using namespace std;
 
 /* in StringTokenizer.cpp */
-void Tokenize(const unsigned char *, size_t, vector<string>&,  const char*,int);
+void Tokenize(const unsigned char* STR, size_t szStr, vector<string> &tokens, vector<PSInt> &tokenSizes, size_t *szTotalTokens, const char* DELIMITERS, int szDELIMITERS);
+
