@@ -332,10 +332,13 @@ XMLcreateFile(XMLcreateFileStruct *p){
 done:		
 	if(err){
 		p->fileID = -1;
-		if(doc != NULL)
+        // following two lines commented out because nspace should
+        // be freed by freeing the document.
+//        if(nspace != NULL)
+//            xmlFreeNs(nspace);
+        if(doc != NULL)
 			xmlFreeDoc(doc);
-		if(nspace != NULL)
-			xmlFreeNs(nspace);
+
 	}
 	DisposeHandle(p->prefix);
 	DisposeHandle(p->fileName);
