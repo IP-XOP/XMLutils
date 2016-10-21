@@ -1,0 +1,11 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+*.cpp text=auto eol=lf
+*.c text=auto eol=lf
+*.h text=auto eol=lf
+*.r text=auto eol=lf
+*.rc text=auto eol=lf
+*.plist text=auto eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
