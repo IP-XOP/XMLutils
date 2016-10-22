@@ -1,10 +1,4 @@
 XMLutils README:
 
-INDIVIDUAL XOPS:
-The individual XOP's for Mac and Windows are contained in the folders /mac and /win, with example experiments and other essential procedures in /extra.  The source is also in this directory.  However, I recommend you use the installers listed below.
 
-WIN32 INSTALLATION:
-Simply use the Win32 installer provided, there's no need to do anything else!
-
-Mac OSX INSTALLATION:
-Mount the Mac_XMLutilsInstaller.dmg by double clicking on it.  The double click on the installer package, which will install XMLutils.
+XMLutils is a dll for reading/writing XML files in Igor Pro. This version only works in Igor Pro 7 - 64 bit only. The 32 bit executables are no longer being produced.
