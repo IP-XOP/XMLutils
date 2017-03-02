@@ -153,14 +153,13 @@ XMLcloseFile(XMLcloseFileStruct *p){
 					}
 					if(tmp.doc)
 						xmlFreeDoc((tmp.doc));
-					allXMLfiles.erase(allXMLfiles_iter->first);
 				} else {
 					if(tmp.doc)
 						xmlFreeDoc((tmp.doc));
 					err = XOPCloseFile(tmp.fileRef);
-					allXMLfiles.erase(allXMLfiles_iter->first);
 				}
 			}
+            allXMLfiles.clear();
 			break;
 		default:
 			if(allXMLfiles.find(fileID) != allXMLfiles.end()){
