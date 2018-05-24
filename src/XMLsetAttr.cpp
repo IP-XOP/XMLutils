@@ -1,8 +1,8 @@
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
-
-#include "UTF8_multibyte_conv.h"
+#include <string>
+using namespace std;
 
 int 
 set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
@@ -20,8 +20,7 @@ set_attr(xmlDocPtr doc, xmlNodeSetPtr nodes, char* attribute, char* val) {
 		cur = xmlSetProp(nodes->nodeTab[i], (xmlChar*) attribute, (xmlChar*) entityEncoded);
 	}
 
-done:
-	if(entityEncoded!= NULL)
+	if(entityEncoded != NULL)
 		xmlFree(entityEncoded);
 		
 	return err;
@@ -44,19 +43,10 @@ XMLsetAttr(XMLsetAttrStruct *p){
 		err = NULL_STRING_HANDLE;
 		goto done;
 	}
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	attribute.append(*p->attribute, GetHandleSize(p->attribute));
-	value.append(*p->val, GetHandleSize(p->val));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
-	if(err = SystemEncodingToUTF8(attribute))
-		goto done;
-	if(err = SystemEncodingToUTF8(value))
-	   goto done;
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	attribute.append(*p->attribute, WMGetHandleSize(p->attribute));
+	value.append(*p->val, WMGetHandleSize(p->val));
 	
 	//check if the node name is invalid
 	if(xmlValidateName(BAD_CAST attribute.c_str() , 0) != 0){
@@ -78,7 +68,7 @@ XMLsetAttr(XMLsetAttrStruct *p){
 	if(err)
 		goto done;
 	
-	if(err =set_attr(doc, xpathObj->nodesetval, (char*) attribute.c_str(), (char*) value.c_str()))
+	if(err = set_attr(doc, xpathObj->nodesetval, (char*) attribute.c_str(), (char*) value.c_str()))
 		goto done;
 	
 done:
@@ -94,13 +84,13 @@ done:
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(p->xPath != NULL)
-		DisposeHandle(p->xPath);
+		WMDisposeHandle(p->xPath);
 	if(p->ns != NULL)	
-		DisposeHandle(p->ns);
+		WMDisposeHandle(p->ns);
 	if(p->attribute != NULL)	
-		DisposeHandle(p->attribute);
+		WMDisposeHandle(p->attribute);
 	if(p->val != NULL)
-		DisposeHandle(p->val);
+		WMDisposeHandle(p->val);
 		
 	return err;	
 }

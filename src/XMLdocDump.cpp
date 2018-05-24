@@ -9,7 +9,6 @@
 
 #include "XMLutils.h"
 #include <string>
-#include "UTF8_multibyte_conv.h"
 
 using namespace std;
 
@@ -46,10 +45,7 @@ XMLdocDump(XMLdocDumpStruct *p){
 	xmlDocDumpFormatMemory(doc, &xmlbuff, &buffersize, 1);
 	
 	data.append((const char*) xmlbuff, sizeof(xmlChar) * xmlStrlen(xmlbuff));
-	
-	if(err = UTF8toSystemEncoding(data))
-		goto done;
-	
+		
 	str = ((char*)data.data());
 	
 	//IGOR doesn't like \n, it wants \r.  So convert all \n to \r.

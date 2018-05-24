@@ -1,9 +1,9 @@
 #include "XOPStandardHeaders.r"
 
 resource 'vers' (1) {						/* XOP version info */
-	0x01, 0x10, final, 0x00, 0,				/* version bytes and country integer */
-	"1.10",
-	"1.10, � 1996-2004 WaveMetrics, Inc., all rights reserved."
+	0x01, 0x11, final, 0x00, 0,				/* version bytes and country integer */
+	"1.11",
+	"1.11"
 };
 
 resource 'vers' (2) {						/* Igor version info */

@@ -9,25 +9,17 @@
 
 #include "XMLutils.h"
 #include <string>
-#include "UTF8_multibyte_conv.h"
+using namespace std;
 
-//a utility that converts Mac paths to UNIX paths
+/*	VC 2015 warns about using fileno and says to use _fileno.
+	But Xcode 9 does not recognize _fileno. This ifdef works around that.
+*/
 #ifdef MACIGOR
-int ConvertPath(const char * inPath, char * outPath, int outPathMaxLen) {
-	
-	CFStringRef inStr = CFStringCreateWithCString(kCFAllocatorDefault, inPath ,kCFStringEncodingMacRoman);
-	if (inStr == NULL)
-		return -1;
-	CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, inStr, kCFURLHFSPathStyle,0);
-	CFStringRef outStr = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-	if (!CFStringGetCString(outStr, outPath, outPathMaxLen, kCFURLPOSIXPathStyle))
-		return -1;
-	CFRelease(outStr);
-	CFRelease(url);
-	CFRelease(inStr);
-	return 0;
-} 
+	#define FILENO fileno
+#else
+	#define FILENO _fileno
 #endif
+
 
 int
 XMLopenFile(XMLopenFileStruct *p){
@@ -35,7 +27,6 @@ XMLopenFile(XMLopenFileStruct *p){
 	int err2;
 	XOP_FILE_REF fileRef = NULL;
 	char fullFilePath [MAX_PATH_LEN+1], nativePath[MAX_PATH_LEN+1];
-	char unixpath[MAX_PATH_LEN+1];
 	
 	const char* macdelim = ":";
 	char* isMAC = NULL;
@@ -63,6 +54,7 @@ XMLopenFile(XMLopenFileStruct *p){
 	//convert native Mac path to UNIX
 #ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
+	char unixpath[MAX_PATH_LEN+1];
 	if((isMAC = strstr(nativePath,macdelim)) && (err = HFSToPosixPath(nativePath,unixpath,0)))
 		goto done;
 	if(isMAC)
@@ -99,8 +91,8 @@ XMLopenFile(XMLopenFileStruct *p){
 	strcpy(openfile.fileNameStr,nativePath);
 	openfile.fileRef = fileRef;
 	openfile.doc = doc;
-	allXMLfiles[fileno(fileRef)] = openfile;
-	p->retval = fileno(fileRef);
+	allXMLfiles[FILENO(fileRef)] = openfile;
+	p->retval = FILENO(fileRef);
 	
 done:
 	if(err)
@@ -114,7 +106,7 @@ done:
 		p->retval = -2;
 	
 	if(p->fullFilePath)
-		DisposeHandle(p->fullFilePath);
+		WMDisposeHandle(p->fullFilePath);
 	return err;
 }
 
@@ -238,8 +230,8 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	int err = 0;
 	
 	XOP_FILE_REF fileRef = NULL;
-	char fullFilePath [MAX_PATH_LEN + 1], nativePath[MAX_PATH_LEN + 1], unixpath[MAX_PATH_LEN + 1];
-	char *macdelim = ":";
+	char fullFilePath [MAX_PATH_LEN + 1], nativePath[MAX_PATH_LEN + 1];
+	const char *macdelim = ":";
 	char *isMAC = NULL;
 	
 	igorXMLfile openfile;
@@ -258,17 +250,10 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	}
 	
 	//allocate space for the C-strings.
-	rootname.append(*p->rootelement, GetHandleSize(p->rootelement));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	prefix.append(*p->prefix, GetHandleSize(p->prefix));
-	
-	if(err = SystemEncodingToUTF8(rootname))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
-	if(err = SystemEncodingToUTF8(prefix))
-		goto done;
-	
+	rootname.append(*p->rootelement, WMGetHandleSize(p->rootelement));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	prefix.append(*p->prefix, WMGetHandleSize(p->prefix));
+		
 	if(err = GetCStringFromHandle(p->fileName, fullFilePath, MAX_PATH_LEN))
 		goto done;
 	//get native filesystem filepath
@@ -278,6 +263,7 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	//convert native Mac path to UNIX
 #ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
+	char unixpath[MAX_PATH_LEN + 1];
 	if((isMAC = strstr(nativePath,macdelim)) && (err = HFSToPosixPath(nativePath,unixpath,0)))
 		goto done;
 	if(isMAC)
@@ -325,8 +311,8 @@ XMLcreateFile(XMLcreateFileStruct *p){
 	openfile.doc = doc;
 	openfile.fileRef = fileRef;
 	
-	allXMLfiles[fileno(fileRef)] = openfile;
-	p->fileID = fileno(fileRef);
+	allXMLfiles[FILENO(fileRef)] = openfile;
+	p->fileID = FILENO(fileRef);
 	
 done:		
 	if(err){
@@ -339,9 +325,9 @@ done:
 			xmlFreeDoc(doc);
 
 	}
-	DisposeHandle(p->prefix);
-	DisposeHandle(p->fileName);
-	DisposeHandle(p->rootelement);
-	DisposeHandle(p->ns);
+	WMDisposeHandle(p->prefix);
+	WMDisposeHandle(p->fileName);
+	WMDisposeHandle(p->rootelement);
+	WMDisposeHandle(p->ns);
 	return err;
 }

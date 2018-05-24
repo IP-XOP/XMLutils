@@ -9,7 +9,7 @@
 
 #include "XMLutils.h"
 #include <string>
-#include "UTF8_multibyte_conv.h"
+using namespace std;
 
 static int
 fill_xpath_list(xmlNodeSet *nodesetval)
@@ -21,7 +21,7 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 
 	//textwave to put element list in
 	waveHndl textWav = NULL;
-	char *textWavName = "M_listXPath";
+	const char *textWavName = "M_listXPath";
 	int overwrite = 1;		//wave will always be overwritten
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave
 	CountInt dimensionSizes[MAX_DIMENSIONS+1];
@@ -33,9 +33,11 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 
 	memset(indices, 0, sizeof(indices));
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
-	pathName = NewHandle(0);
-	if(err = MemError())
+	pathName = WMNewHandle(0);
+	if(pathName == NULL) {
+		err = NOMEM;
 		goto done;
+	}
 	
 	//now 2D
 	dimensionSizes[1] = 3;
@@ -65,8 +67,6 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 				
 			data.assign((const char*) path, sizeof(xmlChar)* xmlStrlen(path));
 			
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
 			if(path != NULL){
 				xmlFree(path);
 				path = NULL;
@@ -80,37 +80,29 @@ fill_xpath_list(xmlNodeSet *nodesetval)
 			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 				goto done;
 
-			SetHandleSize(pathName , 0);
-			if(MemError())
+			err = WMSetHandleSize(pathName, 0);
+			if(err != 0)
 				goto done;
 					
 			if(nodesetval->nodeTab[ii]->ns != NULL && nodesetval->nodeTab[ii]->ns->href != NULL){
 				if(nodesetval->nodeTab[ii]->ns->prefix != NULL && xmlStrlen(nodesetval->nodeTab[ii]->ns->prefix) > 0){
 					data.assign((const char*) nodesetval->nodeTab[ii]->ns->prefix, sizeof(xmlChar) * strlen((char*)nodesetval->nodeTab[ii]->ns->prefix));
-
-					if(err = UTF8toSystemEncoding(data))
-						goto done;
 					
-					if(err = PtrAndHand((void*) data.data(), pathName, data.size()))
+					if(err = WMPtrAndHand((void*) data.data(), pathName, data.size()))
 						goto done;
-					if(err = PtrAndHand((char*)"=", pathName, sizeof(char)))
+					if(err = WMPtrAndHand((char*)"=", pathName, sizeof(char)))
 						goto done;
 				}
 				
 				data.assign((const char*) nodesetval->nodeTab[ii]->ns->href, sizeof(xmlChar) * xmlStrlen(nodesetval->nodeTab[ii]->ns->href));
-				if(err = UTF8toSystemEncoding(data))
-					goto done;
 				
-				if(err = PtrAndHand((void*) data.data(), pathName, data.size()))
+				if(err = WMPtrAndHand((void*) data.data(), pathName, data.size()))
 					goto done;					
 				indices[1] = 1;
 				if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 					goto done;
 			}
 		data.assign((const char*) nodesetval->nodeTab[ii]->name, sizeof(xmlChar) * xmlStrlen(nodesetval->nodeTab[ii]->name));
-
-		if(err = UTF8toSystemEncoding(data))
-				goto done;
 		
 			if(err = PutCStringInHandle((char*) data.c_str(), pathName))
 				goto done;
@@ -124,7 +116,7 @@ done:
 if(path != NULL)
 	xmlFree(path);
 if(pathName != NULL)
-	DisposeHandle(pathName);	
+	WMDisposeHandle(pathName);	
 
 return err;
 }
@@ -146,13 +138,8 @@ XMLlistXPath(XMLlistXpathStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
 			  
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
@@ -186,9 +173,9 @@ done:
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(p->xPath != NULL)
-		DisposeHandle(p->xPath);
+		WMDisposeHandle(p->xPath);
 	if(p->ns)
-		DisposeHandle(p->ns);
+		WMDisposeHandle(p->ns);
 		
 	return err;	
 }

@@ -19,7 +19,6 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 
-#include "UTF8_multibyte_conv.h"
 #include "StringTokenizer.h"
 #include <vector>
 #include <string>
@@ -61,13 +60,13 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	
 	/* Wave for output of content*/
 	waveHndl outputWav;
-	char *waveName = "M_xmlcontent";
+	const char *waveName = "M_xmlcontent";
 	CountInt dimensionSizes[MAX_DIMENSIONS + 1];
 	memset(dimensionSizes, 0, sizeof(dimensionSizes));
 	
 	/* Wave for output of the node names associated with content */
 	waveHndl NODEoutputWav;
-	char *NODEwaveName = "W_xmlcontentnodes";
+	const char *NODEwaveName = "W_xmlcontentnodes";
 	CountInt NODEdimensionSizes[MAX_DIMENSIONS+1];
 	CountInt NODEindices[MAX_DIMENSIONS+1];
 	memset(NODEindices, 0, sizeof(NODEindices));
@@ -80,7 +79,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		goto done;	
 
 	/* Handle to transfer the string to the wave */
-	transfer = NewHandle(0);
+	transfer = WMNewHandle(0);
 	if(transfer == NULL){
 		err = NOMEM; goto done;
 	}
@@ -91,10 +90,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		NODEindices[0] = j;		
 		xmloutputBuf = xmlGetNodePath(xpathObj->nodesetval->nodeTab[j]);
 		data.assign((const char*) xmloutputBuf, xmlStrlen(xmloutputBuf) * sizeof(xmlChar));
-		
-		if(err = UTF8toSystemEncoding(data))
-			goto done;
-		
+				
 		if(xmloutputBuf != NULL){
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
@@ -140,10 +136,7 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 		}
 		
 		data.assign((const char*) xmloutputBuf, xmlStrlen(xmloutputBuf) * sizeof(xmlChar));
-		
-		if(err = UTF8toSystemEncoding(data))
-			goto done;
-		
+				
 		if(xmloutputBuf != NULL){
 			xmlFree(xmloutputBuf);
 			xmloutputBuf = NULL;
@@ -166,8 +159,8 @@ outputXPathObjIntoWave(xmlDoc *doc, xmlXPathObjectPtr xpathObj, char* options){
 	if(err = GetTextWaveData(outputWav, 2, &textDataH))
 		goto done;
 	
-	SetHandleSize(textDataH, totalBytes + (maxNumTokens * numNodes + 1) * sizeof(PSInt));
-	if(err = MemError())
+	err = WMSetHandleSize(textDataH, totalBytes + (maxNumTokens * numNodes + 1) * sizeof(PSInt));
+	if(err != 0)
 		goto done;
 	
 	/*
@@ -209,11 +202,11 @@ done:
 	if(szTotalTokens)
 		delete[] szTotalTokens;
 	if(textDataH)
-		DisposeHandle(textDataH);
+		WMDisposeHandle(textDataH);
 	if(xmloutputBuf != NULL)
 		xmlFree(xmloutputBuf);
 	if (transfer != NULL)
-		DisposeHandle(transfer);
+		WMDisposeHandle(transfer);
 		
 	return err;
 }
@@ -237,14 +230,9 @@ XMLWaveFmXPath(XMLWaveXPathStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	options.append(*p->options, GetHandleSize(p->options));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	options.append(*p->options, WMGetHandleSize(p->options));
 
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
@@ -277,9 +265,9 @@ done:
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 
-	DisposeHandle(p->xPath);
-	DisposeHandle(p->options);
-	DisposeHandle(p->ns);
+	WMDisposeHandle(p->xPath);
+	WMDisposeHandle(p->options);
+	WMDisposeHandle(p->ns);
 	
 	return err;	
 }

@@ -10,13 +10,14 @@
 #include "error.h"
 
 #include <stdio.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 #include <string.h>
-#include <libxml/xPath.h>
-#include <libxml/xmlstring.h>
-#include <libxml/xpathInternals.h>
 #include <map>
+
+#include <libxml2/libxml/parser.h>
+#include <libxml2/libxml/tree.h>
+#include <libxml2/libxml/xPath.h>
+#include <libxml2/libxml/xmlstring.h>
+#include <libxml2/libxml/xpathInternals.h>
 
 #define LIBXML_STATIC
 

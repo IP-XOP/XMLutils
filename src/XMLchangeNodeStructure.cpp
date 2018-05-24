@@ -9,8 +9,7 @@
 
 #include "XMLutils.h"
 #include <string>
-
-#include "UTF8_multibyte_conv.h"
+using namespace std;
 
 /*
  XML_ELEMENT_NODE = 1
@@ -139,7 +138,7 @@ int add_nodes(xmlXPathObject *xpathObj, const xmlChar* nodeName, const xmlChar* 
 				
 		}
 	}
-done:
+	
 	if(encContent != NULL)
 		xmlFree(encContent);
 	
@@ -166,19 +165,10 @@ int XMLaddNode(XMLaddNodeStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	nodeName.append(*p->nodeName, GetHandleSize(p->nodeName));
-	content.append(*p->content, GetHandleSize(p->content));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
-	if(err = SystemEncodingToUTF8(nodeName))
-		goto done;
-	if(err = SystemEncodingToUTF8(content))
-		goto done;
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	nodeName.append(*p->nodeName, WMGetHandleSize(p->nodeName));
+	content.append(*p->content, WMGetHandleSize(p->content));
 	
 	//check if the node name is invalid
 	if(xmlValidateName(BAD_CAST nodeName.c_str() , 0) != 0){
@@ -218,10 +208,10 @@ done:
 	
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	DisposeHandle(p->xPath);
-	DisposeHandle(p->nodeName);
-	DisposeHandle(p->ns);
-	DisposeHandle(p->content);
+	WMDisposeHandle(p->xPath);
+	WMDisposeHandle(p->nodeName);
+	WMDisposeHandle(p->ns);
+	WMDisposeHandle(p->content);
 
 	return err;
 }
@@ -264,15 +254,9 @@ int XMLdelNode(XMLdelNodeStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
-	
-	
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+		
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
 		XOPNotice("XMLdelNode: fileID isn't valid\r");
@@ -303,8 +287,8 @@ done:
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	
-	DisposeHandle(p->xPath);
-	DisposeHandle(p->ns);
+	WMDisposeHandle(p->xPath);
+	WMDisposeHandle(p->ns);
 	
 	return err;
 	

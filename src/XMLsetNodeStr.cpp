@@ -8,7 +8,9 @@
  */
 
 #include "XMLutils.h"
-#include "UTF8_multibyte_conv.h"
+using namespace std;
+#include <string>
+using namespace std;
 
 /**
  * update_xpath_nodes:
@@ -63,7 +65,7 @@ update_xpath_nodes(xmlNodeSetPtr nodes, const xmlChar* value) {
 	if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)
 	    nodes->nodeTab[i] = NULL;
     }
-	done:
+	
 	if(encValue != NULL)
 		xmlFree(encValue);
 
@@ -89,16 +91,9 @@ XMLsetNodeStr(XMLsetNodeStrStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	content.append(*p->content, GetHandleSize(p->content));
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
-	if(err = SystemEncodingToUTF8(content))
-		goto done;
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	content.append(*p->content, WMGetHandleSize(p->content));
 	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
@@ -130,9 +125,9 @@ done:
 	}
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
-	DisposeHandle(p->xPath);
-	DisposeHandle(p->content);
-	DisposeHandle(p->ns);
+	WMDisposeHandle(p->xPath);
+	WMDisposeHandle(p->content);
+	WMDisposeHandle(p->ns);
 	
 	return err;	
 }

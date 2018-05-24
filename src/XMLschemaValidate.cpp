@@ -8,7 +8,6 @@
  */
 
 #include "XMLutils.h"
-#include "UTF8_multibyte_conv.h"
 #include <libxml/xmlschemas.h>
 
 
@@ -29,7 +28,6 @@ XMLschemaValidate(XMLschemaValidateStruct *p){
 	
 	FILE *fp;
 	char fullFilePath [MAX_PATH_LEN + 1], nativePath[MAX_PATH_LEN + 1];
-	char unixpath[MAX_PATH_LEN+1];
 	const char* macdelim = ":";
 	char* isMAC = NULL;
 
@@ -52,6 +50,7 @@ XMLschemaValidate(XMLschemaValidateStruct *p){
 	//convert native Mac path to UNIX
 #ifdef MACIGOR
 	//see if its a MAC path by seeing if there is the Mac delimiter : in there
+	char unixpath[MAX_PATH_LEN+1];
 	if((isMAC = strstr(nativePath, macdelim)) && (err = HFSToPosixPath(nativePath, unixpath, 0)))
 		goto done;
 	if(isMAC)
@@ -118,7 +117,7 @@ done:
 
 
 	if(p->schemaFileName != NULL)
-		DisposeHandle(p->schemaFileName);
+		WMDisposeHandle(p->schemaFileName);
 	
 	return err;	
 }

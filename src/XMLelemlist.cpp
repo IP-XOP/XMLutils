@@ -6,8 +6,7 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 #include <string>
-#include "UTF8_multibyte_conv.h"
-
+using namespace std;
 
 xmlChar* ARJNxmlGetNodePath(xmlNodePtr node)
 {
@@ -251,8 +250,8 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 	
 	xmlAttr* properties = NULL;
 	
-	char *sep = ";";
-	char *sep1 = ":";
+	const char *sep = ";";
+	const char *sep1 = ":";
 	CountInt dimensionSizes[MAX_DIMENSIONS+1];
 	CountInt indices[MAX_DIMENSIONS+1];
 	int numDimensions = 0;
@@ -268,15 +267,14 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
     for (cur_node = a_node; cur_node ; cur_node = cur_node->next) {
         if (cur_node->type == XML_ELEMENT_NODE) {
 			//put XPATH in col 0
-			pathName = NewHandle(0);
-			if(err =MemError())
+			pathName = WMNewHandle(0);
+			if(pathName == NULL) {
+				err = NOMEM;
 				goto done;
+			}
 			path = ARJNxmlGetNodePath(cur_node);//xmlGetNodePath(cur_node);
 			
 			data.assign((const char*) path, sizeof(xmlChar) * xmlStrlen(path));
-
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
 			
 			if(err = MDGetWaveDimensions(textWav, &numDimensions, dimensionSizes))
 				return err;
@@ -302,14 +300,11 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				goto done;
 			
 			//put name in 4th col
-			SetHandleSize(pathName , 0);
-			if(MemError())
+			err = WMSetHandleSize(pathName, 0);
+			if(err != 0)
 				goto done;	
 			
 			data.assign((const char*) cur_node->name, sizeof(xmlChar) * xmlStrlen(cur_node->name));
-
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
 			
 			if(err = PutCStringInHandle((char*) data.c_str(), pathName))
 				goto done;			
@@ -319,27 +314,21 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 
 			//put namespace in col1
 			if(cur_node->ns != NULL && cur_node->ns->href != NULL){
-				SetHandleSize(pathName , 0);
-				if(MemError())
+				err = WMSetHandleSize(pathName, 0);
+				if(err != 0)
 					goto done;
 				
 				if(cur_node->ns->prefix != NULL && xmlStrlen(cur_node->ns->prefix) > 0){
 					data.assign((const char*) cur_node->ns->prefix, sizeof(xmlChar) * xmlStrlen(cur_node->ns->prefix));
-
-					if(err = UTF8toSystemEncoding(data))
-						goto done;
 					
-					if(err = PtrAndHand((void*) data.c_str(), pathName, data.size()))
+					if(err = WMPtrAndHand((void*) data.c_str(), pathName, data.size()))
 						goto done;
-					if(err = PtrAndHand((void*) "=", pathName, sizeof(char)))
+					if(err = WMPtrAndHand((void*) "=", pathName, sizeof(char)))
 						goto done;
 				}
 				data.assign((const char*) cur_node->ns->href, sizeof(xmlChar) * xmlStrlen(cur_node->ns->href));
-				
-				if(err = UTF8toSystemEncoding(data))
-					goto done;
-				
-				if(err = PtrAndHand((char*) data.data(), pathName, data.size()))
+								
+				if(err = WMPtrAndHand((char*) data.data(), pathName, data.size()))
 					goto done;					
 				
 				indices[1] = 1;
@@ -347,8 +336,8 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 					goto done;
 			}
 			
-			SetHandleSize(pathName, 0);
-			if(err = MemError())
+			err = WMSetHandleSize(pathName, 0);
+			if(err != 0)
 				goto done;
 			
 			
@@ -357,13 +346,10 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 				xmlChar *attributeProp = NULL;
 				
 				data.assign((const char*) properties->name, sizeof(xmlChar) * xmlStrlen(properties->name));
-
-				if(err = UTF8toSystemEncoding(data))
-					goto done;
 				
-				if(err = PtrAndHand((char*)data.data(), pathName, data.size()))
+				if(err = WMPtrAndHand((char*)data.data(), pathName, data.size()))
 					goto done;
-				if(err = PtrAndHand(sep1, pathName, sizeof(char) * strlen(sep1)))
+				if(err = WMPtrAndHand(sep1, pathName, sizeof(char) * strlen(sep1)))
 					goto done;	
 				
 				attributeProp = xmlGetProp(cur_node, properties->name);
@@ -372,20 +358,17 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 
 				if(attributeProp)
 					xmlFree(attributeProp);
-				
-				if(err = UTF8toSystemEncoding(data))
+								
+				if(err = WMPtrAndHand((char*)data.data(), pathName, data.size()))
 					goto done;
-				
-				if(err = PtrAndHand((char*)data.data(), pathName, data.size()))
-					goto done;
-				if(err = PtrAndHand(sep, pathName, sizeof(char) * strlen(sep)))
+				if(err = WMPtrAndHand(sep, pathName, sizeof(char) * strlen(sep)))
 					goto done;
 			}
 			indices[1] = 2;
 			if(err = MDSetTextWavePointValue(textWav, indices, pathName))
 					goto done;
 			if(pathName != NULL){
-				DisposeHandle(pathName);
+				WMDisposeHandle(pathName);
 				pathName = NULL;
 			}
 			
@@ -398,7 +381,7 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 //				goto done;
 //			WaveHandleModified(textWav);
 //			if(pathName !=NULL){
-//				DisposeHandle(pathName);
+//				WMDisposeHandle(pathName);
 //				pathName = NULL;
 //			}
 //			}
@@ -412,13 +395,13 @@ fill_element_names(xmlNode * a_node, waveHndl textWav)
 		}
 		
 		if(pathName != NULL){
-			DisposeHandle(pathName);
+			WMDisposeHandle(pathName);
 			pathName = NULL;
 		}	
 	}
 done:
 if(pathName != NULL)
-	DisposeHandle(pathName);	
+	WMDisposeHandle(pathName);	
 
 return err;
 }
@@ -435,7 +418,7 @@ XMLelemlist(XMLelemlistStructPtr p){
 
 	//textwave to put element list in
 	waveHndl textWav = NULL;
-	char *textWavName = "W_ElementList";
+	const char *textWavName = "W_ElementList";
 	int overwrite = 1;		//wave will always be overwritten
 	CountInt dimensionSizes[MAX_DIMENSIONS + 1];	//used for MDMakeWave
 	int type = TEXT_WAVE_TYPE;				//Xpaths will be text wave

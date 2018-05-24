@@ -20,7 +20,7 @@
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 #include "XMLutils.h"
 #include <string>
-#include "UTF8_multibyte_conv.h"
+using namespace std;
 
 int 
 print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
@@ -35,7 +35,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 	/* Wave for output of content*/
 	waveHndl outputWav;
 	Handle transfer = NULL;
-	char *waveName = "M_listAttr";
+	const char *waveName = "M_listAttr";
 	int numDimensions;
 	CountInt dimensionSizes[MAX_DIMENSIONS + 1];
 	CountInt indices[MAX_DIMENSIONS + 1];
@@ -45,7 +45,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 	if(err = MDMakeWave(&outputWav,waveName,NULL,dimensionSizes,TEXT_WAVE_TYPE,1))
 		goto done;
 		/* Handle to transfer the string to the wave */
-	transfer = NewHandle(0);
+	transfer = WMNewHandle(0);
 	if(transfer == NULL){
 		err = NOMEM; goto done;
 	}
@@ -67,9 +67,6 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			xmlNodePath = xmlGetNodePath(nodes->nodeTab[i]);
 			
 			data.assign((const char*)xmlNodePath, sizeof(xmlChar) * xmlStrlen(xmlNodePath));
-
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
 			
 			if(xmlNodePath){
 				xmlFree(xmlNodePath);
@@ -85,9 +82,6 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			
 			data.assign((const char*)properties->name, sizeof(xmlChar) * xmlStrlen(properties->name));
 
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
-
 			if(err = PutCStringInHandle((char*)data.c_str(), transfer))
 				goto done;
 			if(err = MDSetTextWavePointValue(outputWav,indices, transfer))
@@ -98,10 +92,7 @@ print_attr(xmlDocPtr doc, xmlNodeSetPtr nodes) {
 			attrVal = xmlGetProp(nodes->nodeTab[i], properties->name);
 
 			data.assign((const char*)attrVal, sizeof(xmlChar) * xmlStrlen(attrVal));
-			
-			if(err = UTF8toSystemEncoding(data))
-				goto done;
-			
+						
 			if(attrVal){
 				xmlFree(attrVal);
 				attrVal = NULL;
@@ -119,7 +110,7 @@ done:
 if(xmlNodePath != NULL)
 	xmlFree(xmlNodePath);
 if (transfer != NULL)
-	DisposeHandle(transfer);
+	WMDisposeHandle(transfer);
 if (attrVal != NULL)
 	xmlFree(attrVal);
 	return err;
@@ -143,13 +134,8 @@ XMLlistAttr(XMLlistAttrStruct *p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-	   goto done;	
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
 	
 	fileID = (long)roundf(p->fileID);	
 	if((allXMLfiles.find(fileID) == allXMLfiles.end())){
@@ -181,9 +167,9 @@ done:
 		xmlXPathFreeObject(xpathObj); 
 
 	if(p->xPath)
-		DisposeHandle(p->xPath);
+		WMDisposeHandle(p->xPath);
 	if(p->ns)
-		DisposeHandle(p->ns);
+		WMDisposeHandle(p->ns);
 	
 	return err;	
 }

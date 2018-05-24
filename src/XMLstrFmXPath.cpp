@@ -11,7 +11,7 @@
 #include "XMLutils.h"
 
 #include <string>
-#include "UTF8_multibyte_conv.h"
+using namespace std;
 
 int 
 print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
@@ -25,7 +25,7 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 	size = (nodes) ? nodes->nodeNr : 0;
     
 //	if(size == 0){
-//		if(err = PtrAndHand(nothing,output,sizeof(nothing)))
+//		if(err = WMPtrAndHand(nothing,output,sizeof(nothing)))
 //			goto done;
 //	}
 	
@@ -52,10 +52,7 @@ print_xpath_nodes(xmlDocPtr doc, xmlNodeSetPtr nodes, Handle output) {
 			xmloutputBuf = NULL;
 		}
 	}
-		
-	if(err = UTF8toSystemEncoding(data))
-		goto done;
-	
+
 	if(err = PutCStringInHandle((char*) data.c_str(), output))
 		goto done;
 	
@@ -86,18 +83,13 @@ XMLstrFmXPath(XMLstrFmXpathStructPtr p){
 		goto done;
 	}
 	
-	xPath.append(*p->xPath, GetHandleSize(p->xPath));
-	ns.append(*p->ns, GetHandleSize(p->ns));
-	options.append(*p->options, GetHandleSize(p->options));
+	xPath.append(*p->xPath, WMGetHandleSize(p->xPath));
+	ns.append(*p->ns, WMGetHandleSize(p->ns));
+	options.append(*p->options, WMGetHandleSize(p->options));
 	options.append("\0");
-	
-	if(err = SystemEncodingToUTF8(xPath))
-		goto done;
-	if(err = SystemEncodingToUTF8(ns))
-		goto done;
 		
 	//get a handle for the output
-	output = NewHandle(0); 
+	output = WMNewHandle(0); 
 	if (output == NULL) 
 		return NOMEM; 
     p->returnString = output;
@@ -134,11 +126,11 @@ done:
 	if(xpathObj != NULL)
 		xmlXPathFreeObject(xpathObj); 
 	if(p->xPath != NULL)
-		DisposeHandle(p->xPath);
+		WMDisposeHandle(p->xPath);
 	if(p->options != NULL)
-		DisposeHandle(p->options);
+		WMDisposeHandle(p->options);
 	if(p->ns)
-		DisposeHandle(p->ns);
+		WMDisposeHandle(p->ns);
 		
 	return err;	
 }
