@@ -1,18 +1,6 @@
 /*
  XMLutils - an XOP designed to work with XML files
  */
-/*	SimpleFit.c
- 
-	A simplified project designed to act as a template for your curve fitting function.
-	The fitting function is a simple polynomial. It works but is of no practical use.
-	
-	HR, 091021
- Updated for 64-bit compatibility.
- 
-	HR, 2013-02-08
- Updated for Xcode 4 compatibility. Changed to use XOPMain instead of main.
- As a result the XOP now requires Igor Pro 6.20 or later.
- */
 
 #include "XOPStandardHeaders.h"			// Include ANSI headers, Mac headers, IgorXOP.h, XOP.h and XOPSupport.h
 
@@ -128,13 +116,13 @@ XOPEntry(void)
 	ioRecHandle to the address to be called for future messages.
  */
 HOST_IMPORT int
-XOPMain(IORecHandle ioRecHandle)		// The use of XOPMain rather than main means this XOP requires Igor Pro 6.20 or later
+XOPMain(IORecHandle ioRecHandle)		// The use of XOPMain rather than main means this XOP requires Igor Pro 8.00 or later
 {
     XOPInit(ioRecHandle);							// Do standard XOP initialization.
     SetXOPEntry(XOPEntry);							// Set entry point for future calls.
     
-    if (igorVersion < 700){
-        SetXOPResult(REQUIRES_IGOR_700);
+    if (igorVersion < 800){
+        SetXOPResult(REQUIRES_IGOR_800);
         return EXIT_FAILURE;
     }
     else

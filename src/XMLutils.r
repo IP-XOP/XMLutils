@@ -8,14 +8,14 @@ resource 'vers' (1) {						/* XOP version info */
 
 resource 'vers' (2) {						/* Igor version info */
 	0x07, 0x00, release, 0x00, 0,			/* version bytes and country integer */
-	"7.00",
-	"(for Igor Pro 7.00 or later)"
+	"8.00",
+	"(for Igor Pro 8.00 or later)"
 };
 
 resource 'STR#' (1100) {					/* custom error messages */
 	{
 	//[1]
-	"XMLutils64 requires Igor Pro 7.00 or later.",
+	"XMLutils64 requires Igor Pro 8.00 or later.",
 	//[2]
 	"Error while parsing XML document",
 	//[3]
@@ -62,8 +62,8 @@ resource 'STR#' (1101) {					// Misc strings for XOP.
 resource 'XOPI' (1100) {
 	XOP_VERSION,							// XOP protocol version.
 	DEV_SYS_CODE,							// Development system information.
-	0,										// Obsolete - set to zero.
-	0,										// Obsolete - set to zero.
+    XOP_FEATURE_FLAGS,						// Obsolete - set to zero.
+    XOPI_RESERVED,							// Obsolete - set to zero.
 	XOP_TOOLKIT_VERSION,					// XOP Toolkit version.
 };
 
